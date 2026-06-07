@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import Column from "./Column";
 import TaskModal from "../Task/TaskModal";
@@ -10,6 +10,24 @@ const KanbanBoard = ({ onSelectTask }) => {
   const { tasks, updateTask, addTask } = useBoard();
   const [modalOpen, setModalOpen] = useState(false);
   const [defaultStatus, setDefaultStatus] = useState("backlog");
+
+  useEffect(() => {
+  const handler = (e) => {
+    if (
+      e.key.toLowerCase() === "n" &&
+      !e.target.matches("input, textarea")
+    ) {
+      setDefaultStatus("backlog");
+      setModalOpen(true);
+    }
+  };
+
+  window.addEventListener("keydown", handler);
+
+  return () => {
+    window.removeEventListener("keydown", handler);
+  };
+}, []);
 
   const getTasksByStatus = (status) =>
     tasks
