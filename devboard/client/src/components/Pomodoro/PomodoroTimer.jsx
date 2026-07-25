@@ -6,7 +6,7 @@ const PomodoroTimer = ({ activeTaskTitle, onSessionComplete }) => {
     usePomodoro(onSessionComplete);
 
   return (
-    <div className="flex items-center gap-3 bg-[#1a1a1f] px-4 py-2 border-b border-[#2a2a2f] text-sm">
+    <div className="flex items-center gap-3 bg-[var(--bg-card)] px-4 py-2 border-b border-[var(--border-primary)] text-sm">
       <span className="text-lg">🍅</span>
       <span className="text-[#888] text-xs truncate max-w-[160px]">
         {activeTaskTitle || "No task selected"}
@@ -18,7 +18,7 @@ const PomodoroTimer = ({ activeTaskTitle, onSessionComplete }) => {
       >
         {format(timeLeft)}
       </span>
-      <div className="flex-1 h-1.5 bg-[#2a2a2f] rounded-full overflow-hidden">
+      <div className="flex-1 h-1.5 bg-[var(--border-primary)] rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-1000 ${
             isBreak ? "bg-green-500" : "bg-purple-500"
@@ -31,13 +31,13 @@ const PomodoroTimer = ({ activeTaskTitle, onSessionComplete }) => {
       </span>
       <button
         onClick={toggle}
-        className="px-3 py-1 rounded bg-[#2a2a2f] hover:bg-[#333] text-xs font-medium transition"
+        className="px-3 py-1 rounded bg-[var(--border-primary)] hover:bg-[#333] text-xs font-medium transition"
       >
         {isRunning ? "⏸ Pause" : "▶ Start"}
       </button>
       <button
         onClick={reset}
-        className="px-3 py-1 rounded bg-[#2a2a2f] hover:bg-[#333] text-xs font-medium transition text-[#888]"
+        className="px-3 py-1 rounded bg-[var(--border-primary)] hover:bg-[#333] text-xs font-medium transition text-[#888]"
       >
         ↺
       </button>

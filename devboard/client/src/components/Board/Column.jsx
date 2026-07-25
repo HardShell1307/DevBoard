@@ -21,7 +21,7 @@ const Column = ({ columnId, tasks, onSelectTask, onAddTask }) => {
           <span className="text-xs font-semibold uppercase tracking-wider text-[#888]">
             {config.label}
           </span>
-          <span className="text-[10px] bg-[#2a2a2f] text-[#666] px-1.5 py-0.5 rounded-full">
+          <span className="text-[10px] bg-[var(--border-primary)] text-[#666] px-1.5 py-0.5 rounded-full">
             {tasks.length}
           </span>
         </div>
@@ -52,7 +52,7 @@ const Column = ({ columnId, tasks, onSelectTask, onAddTask }) => {
       {/* Add card button */}
       <button
         onClick={() => onAddTask(columnId)}
-        className="mt-2 flex items-center gap-2 text-xs text-[#555] hover:text-[#888] px-2 py-1.5 rounded hover:bg-[#1a1a1f] transition"
+        className="mt-2 flex items-center gap-2 text-xs text-[#555] hover:text-[#888] px-2 py-1.5 rounded hover:bg-[var(--bg-card)] transition"
       >
         <span>＋</span> Add card
       </button>

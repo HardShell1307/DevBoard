@@ -43,8 +43,8 @@ const TaskModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#1a1a1f] border border-[#2a2a2f] rounded-xl w-full max-w-lg shadow-2xl">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#2a2a2f]">
+      <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl w-full max-w-lg shadow-2xl">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-primary)]">
           <h2 className="font-semibold text-[#f0f0f0]">
             {mode === "create" ? "New Task" : "Edit Task"}
           </h2>
@@ -62,7 +62,7 @@ const TaskModal = ({
             placeholder="Task title *"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="w-full bg-[#0f0f10] border border-[#2a2a2f] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
           />
 
           <textarea
@@ -70,14 +70,14 @@ const TaskModal = ({
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             rows={3}
-            className="w-full bg-[#0f0f10] border border-[#2a2a2f] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500 resize-none"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500 resize-none"
           />
 
           <div className="flex gap-2">
             <select
               value={form.status}
               onChange={(e) => setForm({ ...form, status: e.target.value })}
-              className="flex-1 bg-[#0f0f10] border border-[#2a2a2f] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] focus:outline-none focus:border-purple-500"
+              className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] focus:outline-none focus:border-purple-500"
             >
               <option value="backlog">Backlog</option>
               <option value="inprogress">In Progress</option>
@@ -88,7 +88,7 @@ const TaskModal = ({
             <select
               value={form.priority}
               onChange={(e) => setForm({ ...form, priority: e.target.value })}
-              className="flex-1 bg-[#0f0f10] border border-[#2a2a2f] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] focus:outline-none focus:border-purple-500"
+              className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] focus:outline-none focus:border-purple-500"
             >
               <option value="low">Low Priority</option>
               <option value="medium">Medium Priority</option>
@@ -101,7 +101,7 @@ const TaskModal = ({
             placeholder="Tags (comma separated: react, api, bug)"
             value={form.tags}
             onChange={(e) => setForm({ ...form, tags: e.target.value })}
-            className="w-full bg-[#0f0f10] border border-[#2a2a2f] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
           />
 
           <div className="flex gap-2">
@@ -112,7 +112,7 @@ const TaskModal = ({
               onChange={(e) =>
                 setForm({ ...form, githubIssueUrl: e.target.value })
               }
-              className="flex-1 bg-[#0f0f10] border border-[#2a2a2f] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+              className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
             />
             <input
               type="number"
@@ -121,18 +121,18 @@ const TaskModal = ({
               onChange={(e) =>
                 setForm({ ...form, githubIssueNumber: e.target.value })
               }
-              className="w-16 bg-[#0f0f10] border border-[#2a2a2f] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+              className="w-16 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
             />
           </div>
 
           {/* Code Snippet */}
-          <div className="border border-[#2a2a2f] rounded-lg overflow-hidden">
-            <div className="flex items-center justify-between px-3 py-2 bg-[#0f0f10] border-b border-[#2a2a2f]">
+          <div className="border border-[var(--border-primary)] rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 bg-[var(--bg-primary)] border-b border-[var(--border-primary)]">
               <span className="text-xs text-[#888]">{"</>"} Code Snippet</span>
               <select
                 value={snippetLang}
                 onChange={(e) => setSnippetLang(e.target.value)}
-                className="bg-[#1a1a1f] border border-[#2a2a2f] rounded text-xs text-[#888] px-2 py-1 focus:outline-none"
+                className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded text-xs text-[#888] px-2 py-1 focus:outline-none"
               >
                 {[
                   "javascript",
@@ -155,18 +155,18 @@ const TaskModal = ({
               value={snippetCode}
               onChange={(e) => setSnippetCode(e.target.value)}
               rows={4}
-              className="w-full bg-[#0f0f10] px-3 py-2 text-xs font-mono text-[#a0a0a0] placeholder-[#444] focus:outline-none resize-none"
+              className="w-full bg-[var(--bg-primary)] px-3 py-2 text-xs font-mono text-[#a0a0a0] placeholder-[#444] focus:outline-none resize-none"
             />
           </div>
           <input
             type="date"
             value={form.dueDate}
             onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-            className="w-full bg-[#0f0f10] border border-[#2a2a2f] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] focus:outline-none focus:border-purple-500"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] focus:outline-none focus:border-purple-500"
           />
         </div>
 
-        <div className="flex justify-end gap-2 px-5 py-4 border-t border-[#2a2a2f]">
+        <div className="flex justify-end gap-2 px-5 py-4 border-t border-[var(--border-primary)]">
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm text-[#888] hover:text-[#aaa] transition"

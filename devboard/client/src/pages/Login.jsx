@@ -30,7 +30,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f10] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="text-4xl mb-2">🗂️</div>
@@ -38,14 +38,14 @@ const Login = () => {
           <p className="text-[#666] text-sm mt-1">Kanban built for developers</p>
         </div>
 
-        <div className="bg-[#1a1a1f] border border-[#2a2a2f] rounded-xl p-6 flex flex-col gap-3">
+        <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl p-6 flex flex-col gap-3">
           {isRegister && (
             <input
               type="text"
               placeholder="Your name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full bg-[#0f0f10] border border-[#2a2a2f] rounded-lg px-3 py-2.5 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2.5 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
             />
           )}
           <input
@@ -53,7 +53,7 @@ const Login = () => {
             placeholder="Email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="w-full bg-[#0f0f10] border border-[#2a2a2f] rounded-lg px-3 py-2.5 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2.5 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
           />
           <div className="relative">
             <input
@@ -66,7 +66,7 @@ const Login = () => {
               onKeyDown={(e) =>
                 e.key === "Enter" && handleSubmit()
               }
-              className="w-full bg-[#0f0f10] border border-[#2a2a2f] rounded-lg px-3 py-2.5 pr-10 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2.5 pr-10 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
             />
             <button
               type="button"

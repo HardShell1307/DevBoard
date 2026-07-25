@@ -5,7 +5,7 @@ import TaskModal from "../components/Task/TaskModal";
 import { useBoard } from "../context/BoardContext";
 
 const LoadingSpinner = () => (
-  <div className="flex items-center justify-center h-screen bg-[#0f0f10]">
+  <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]">
     <div className="flex flex-col items-center gap-4">
       <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
       <span className="text-[#a0a0a5] text-sm font-medium animate-pulse">Loading workspace...</span>
@@ -31,9 +31,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#0f0f10]">
+    <div className="flex flex-col h-screen bg-[var(--bg-primary)]">
       {/* Top Navbar */}
-      <div className="flex flex-col gap-3 px-5 py-3 bg-[#1a1a1f] border-b border-[#2a2a2f] md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 px-5 py-3 bg-[var(--bg-card)] border-b border-[var(--border-primary)] md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-lg">🗂️</span>
           <span className="font-semibold text-[#f0f0f0]">DevBoard</span>
@@ -49,7 +49,7 @@ const Dashboard = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search tasks by title or tag..."
-              className="w-full bg-[#0f0f10] border border-[#2a2a2f] rounded-xl px-4 py-2.5 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/15 transition"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl px-4 py-2.5 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/15 transition"
             />
           </label>
         </div>
@@ -58,7 +58,7 @@ const Dashboard = () => {
           <span className="text-xs text-[#666]">👋 {user?.name}</span>
           <button
             onClick={logout}
-            className="text-xs text-[#666] hover:text-[#aaa] transition px-3 py-1.5 border border-[#2a2a2f] rounded-lg"
+            className="text-xs text-[#666] hover:text-[#aaa] transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg"
           >
             Logout
           </button>

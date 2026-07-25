@@ -28,8 +28,8 @@ const TaskCard = ({ task, index, onSelect }) => {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           onClick={() => onSelect(task)}
-          className={`bg-[#1a1a1f] border rounded-lg p-3 cursor-pointer transition-all
-            ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : "border-[#2a2a2f] hover:border-[#444]"}`}
+          className={`bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
+            ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : "border-[var(--border-primary)] hover:border-[#444]"}`}
         >
           {/* Title */}
           <p className="text-sm font-medium text-[#f0f0f0] leading-snug mb-2">
@@ -70,7 +70,7 @@ const TaskCard = ({ task, index, onSelect }) => {
                       e.stopPropagation();
                       setSelectedSnippet(index);
                     }}
-                    className="text-[10px] px-2 py-1 rounded bg-[#2a2a2f]"
+                    className="text-[10px] px-2 py-1 rounded bg-[var(--border-primary)]"
                   >
                     Snippet {index + 1}
                   </button>
@@ -107,7 +107,7 @@ const TaskCard = ({ task, index, onSelect }) => {
             {task.tags?.map((tag) => (
               <span
                 key={tag}
-                className="text-[10px] px-1.5 py-0.5 rounded bg-[#2a2a2f] text-[#888]"
+                className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--border-primary)] text-[#888]"
               >
                 {tag}
               </span>
