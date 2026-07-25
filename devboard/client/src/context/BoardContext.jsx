@@ -1,11 +1,18 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import axios from "axios";
 
 const BoardContext = createContext();
 
 export const BoardProvider = ({ children }) => {
-  const [tasks, setTasks] = useState([]);
+  const [allTasks, setAllTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("devboard_user");
     return saved ? JSON.parse(saved) : null;
@@ -20,7 +27,7 @@ export const BoardProvider = ({ children }) => {
     try {
       setLoading(true);
       const { data } = await axios.get("/api/tasks", authHeaders());
-      setTasks(data);
+      setAllTasks(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -32,22 +39,22 @@ export const BoardProvider = ({ children }) => {
 
   const addTask = async (taskData) => {
     const { data } = await axios.post("/api/tasks", taskData, authHeaders());
-    setTasks((prev) => [...prev, data]);
+    setAllTasks((prev) => [...prev, data]);
   };
 
   const updateTask = async (id, updates) => {
     const { data } = await axios.put(`/api/tasks/${id}`, updates, authHeaders());
-    setTasks((prev) => prev.map((t) => (t._id === id ? data : t)));
+    setAllTasks((prev) => prev.map((t) => (t._id === id ? data : t)));
   };
 
   const deleteTask = async (id) => {
     await axios.delete(`/api/tasks/${id}`, authHeaders());
-    setTasks((prev) => prev.filter((t) => t._id !== id));
+    setAllTasks((prev) => prev.filter((t) => t._id !== id));
   };
 
   const addSnippet = async (taskId, snippet) => {
     const { data } = await axios.post(`/api/tasks/${taskId}/snippets`, snippet, authHeaders());
-    setTasks((prev) => prev.map((t) => (t._id === taskId ? data : t)));
+    setAllTasks((prev) => prev.map((t) => (t._id === taskId ? data : t)));
   };
 
   const login = (userData) => {
@@ -58,11 +65,54 @@ export const BoardProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("devboard_user");
-    setTasks([]);
+    setAllTasks([]);
+    setSearchQuery("");
   };
 
+  const tasks = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    if (!query) return allTasks;
+
+    const priorityLabel = (priority) => {
+      if (!priority) return "";
+      return `${priority} priority`;
+    };
+
+    return allTasks.filter((task) => {
+      const title = task.title?.toLowerCase() || "";
+      const description = task.description?.toLowerCase() || "";
+      const tags = task.tags?.join(" ").toLowerCase() || "";
+      const priority = task.priority?.toLowerCase() || "";
+      const priorityText = priorityLabel(task.priority).toLowerCase();
+
+      return (
+        title.includes(query) ||
+        description.includes(query) ||
+        tags.includes(query) ||
+        priority.includes(query) ||
+        priorityText.includes(query)
+      );
+    });
+  }, [allTasks, searchQuery]);
+
   return (
-    <BoardContext.Provider value={{ tasks, loading, user, addTask, updateTask, deleteTask, addSnippet, login, logout, fetchTasks }}>
+    <BoardContext.Provider
+      value={{
+        tasks,
+        loading,
+        user,
+        searchQuery,
+        setSearchQuery,
+        addTask,
+        updateTask,
+        deleteTask,
+        addSnippet,
+        login,
+        logout,
+        fetchTasks,
+      }}
+    >
       {children}
     </BoardContext.Provider>
   );
