@@ -3,6 +3,7 @@ import { DragDropContext } from "@hello-pangea/dnd";
 import Column from "./Column";
 import TaskModal from "../Task/TaskModal";
 import { useBoard } from "../../context/BoardContext";
+import confetti from 'canvas-confetti';
 
 const COLUMNS = ["backlog", "inprogress", "review", "done"];
 
@@ -38,6 +39,10 @@ const KanbanBoard = ({ onSelectTask }) => {
     const { destination, source } = result;
 
     if (!destination) return;
+
+    if (destination.droppableId === "done") {
+    confetti({ particleCount: 100, spread: 70 });
+    }
 
     const colTasks = getTasksByStatus(destination.droppableId);
     const reordered = Array.from(colTasks);
