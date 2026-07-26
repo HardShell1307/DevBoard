@@ -8,7 +8,9 @@ export const usePomodoro = (onSessionComplete) => {
   const [timeLeft, setTimeLeft] = useState(WORK_DURATION);
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
-  const [sessionCount, setSessionCount] = useState(0);
+  const [sessionCount, setSessionCount] = useState(() =>
+    Number(localStorage.getItem("pom_sessions") || 0),
+  );
   const intervalRef = useRef(null);
 
   useEffect(() => {
@@ -21,6 +23,7 @@ export const usePomodoro = (onSessionComplete) => {
             if (!isBreak) {
               const nextCount = sessionCount + 1;
               setSessionCount(nextCount);
+              localStorage.setItem("pom_sessions", sessionCount + 1);
               if (onSessionComplete) onSessionComplete();
               setIsBreak(true);
               const isLongBreak = nextCount % 4 === 0 && nextCount > 0;
@@ -49,16 +52,30 @@ export const usePomodoro = (onSessionComplete) => {
   };
 
   const format = (secs) => {
-    const m = Math.floor(secs / 60).toString().padStart(2, "0");
+    const m = Math.floor(secs / 60)
+      .toString()
+      .padStart(2, "0");
     const s = (secs % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
   };
 
-  const currentBreakDuration = (sessionCount % 4 === 0 && sessionCount > 0) ? LONG_BREAK_DURATION : BREAK_DURATION;
+  const currentBreakDuration =
+    sessionCount % 4 === 0 && sessionCount > 0
+      ? LONG_BREAK_DURATION
+      : BREAK_DURATION;
 
   const progress = isBreak
     ? ((currentBreakDuration - timeLeft) / currentBreakDuration) * 100
     : ((WORK_DURATION - timeLeft) / WORK_DURATION) * 100;
 
-  return { timeLeft, isRunning, isBreak, sessionCount, toggle, reset, format, progress };
+  return {
+    timeLeft,
+    isRunning,
+    isBreak,
+    sessionCount,
+    toggle,
+    reset,
+    format,
+    progress,
+  };
 };
