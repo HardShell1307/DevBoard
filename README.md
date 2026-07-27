@@ -18,7 +18,7 @@ DevBoard is a task board made for how developers actually work — track issues,
 - 🍅 **Pomodoro Timer** — Built-in 25/5 min work-break timer for each task
 - 🔐 **Auth** — Register and log in securely with JWT
 - 🌙 **Dark Mode UI** — Easy on the eyes during long coding sessions
-<img width="893" height="608" alt="DevBoard screenshot" src="https://github.com/user-attachments/assets/93df3b3b-6e07-48a6-8939-7ba67aeece25" />
+<img width="893" height="608" alt="DevBoard screenshot" src="./docs/screenshot.png" />
 ---
  
 ## 🛠️ Tech Stack
@@ -87,3 +87,5 @@ Contributions are very welcome, and this project is friendly to first-time contr
 Check out [CONTRIBUTING.md](./CONTRIBUTING.md) for the full setup and contribution guide. If you're not sure where to start, look for issues labeled `good first issue`.
  
 ---
+![alt text](<screenshot.png .png>)
+src="./docs/screenshot.png"
