@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import KanbanBoard from "../components/Board/KanbanBoard";
 import PomodoroTimer from "../components/Pomodoro/PomodoroTimer";
 import TaskModal from "../components/Task/TaskModal";
+import Heatmap from "../components/Heatmap/Heatmap";
 import { useBoard } from "../context/BoardContext";
 
 const LoadingSpinner = () => (
@@ -41,7 +42,6 @@ const Dashboard = () => {
             beta
           </span>
         </div>
-
         <div className="flex-1 w-full max-w-xl md:px-6">
           <label className="relative block">
             <input
@@ -53,7 +53,6 @@ const Dashboard = () => {
             />
           </label>
         </div>
-
         <div className="flex items-center gap-3">
           <span className="text-xs text-[#666]">👋 {user?.name}</span>
           <button
@@ -65,17 +64,18 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Activity Heatmap */}
+      <Heatmap />
+
       {/* Pomodoro Bar */}
       <PomodoroTimer
         activeTaskTitle={selectedTask?.title}
         onSessionComplete={handleSessionComplete}
       />
-
       {/* Kanban Board */}
       <div className="flex-1 overflow-hidden">
         <KanbanBoard onSelectTask={setSelectedTask} />
       </div>
-
       {/* Task Edit Modal */}
       {selectedTask && (
         <TaskModal
@@ -91,5 +91,4 @@ const Dashboard = () => {
     </div>
   );
 };
-
 export default Dashboard;
