@@ -76,21 +76,39 @@ const TaskCard = ({ task, index, onSelect }) => {
                   </button>
                 ))}
               </div>
+
+              {/* Updated Snippet Block with Copy Button */}
               {expanded && (
-                <SyntaxHighlighter
-                  language={
-                    task.snippets[selectedSnippet].language || "javascript"
-                  }
-                  style={vscDarkPlus}
-                  customStyle={{
-                    fontSize: 10,
-                    borderRadius: 6,
-                    margin: 0,
-                    padding: "8px 10px",
-                  }}
-                >
-                  {task.snippets[selectedSnippet].code}
-                </SyntaxHighlighter>
+                <>
+                  <div className="flex justify-end mb-1">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigator.clipboard.writeText(
+                          task.snippets[selectedSnippet].code
+                        );
+                      }}
+                      className="text-[10px] px-2 py-1 rounded bg-purple-600 text-white hover:bg-purple-700"
+                    >
+                      Copy
+                    </button>
+                  </div>
+
+                  <SyntaxHighlighter
+                    language={
+                      task.snippets[selectedSnippet].language || "javascript"
+                    }
+                    style={vscDarkPlus}
+                    customStyle={{
+                      fontSize: 10,
+                      borderRadius: 6,
+                      margin: 0,
+                      padding: "8px 10px",
+                    }}
+                  >
+                    {task.snippets[selectedSnippet].code}
+                  </SyntaxHighlighter>
+                </>
               )}
             </div>
           )}
