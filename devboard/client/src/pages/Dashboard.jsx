@@ -15,11 +15,12 @@ const LoadingSpinner = () => (
 );
 
 const Dashboard = () => {
-  const { user, logout, updateTask, loading, searchQuery, setSearchQuery } = useBoard();
+  const { user, logout, updateTask, loading, searchQuery, setSearchQuery, tasks, addTask } = useBoard();
   useEffect(() => {
     document.title = "Dashboard — DevBoard";
   }, []);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [isCreatingFirstTask, setIsCreatingFirstTask] = useState(false);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -74,7 +75,23 @@ const Dashboard = () => {
       />
       {/* Kanban Board */}
       <div className="flex-1 overflow-hidden">
-        <KanbanBoard onSelectTask={setSelectedTask} />
+        {tasks.length === 0 ? (
+          <div className="flex-1 h-full flex flex-col items-center justify-center text-center p-8">
+            <span className="text-6xl mb-4">👋</span>
+            <h2 className="text-2xl font-semibold text-[#f0f0f0] mb-2">Welcome to your board!</h2>
+            <p className="text-[#a0a0a5] mb-6 max-w-md">
+              You don't have any tasks yet. Click + Add card to create your first one.
+            </p>
+            <button
+              onClick={() => setIsCreatingFirstTask(true)}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg font-medium transition"
+            >
+              + Add your first card
+            </button>
+          </div>
+        ) : (
+          <KanbanBoard onSelectTask={setSelectedTask} />
+        )}
       </div>
       {/* Task Edit Modal */}
       {selectedTask && (
@@ -85,6 +102,18 @@ const Dashboard = () => {
           onSave={async (data) => {
             await updateTask(selectedTask._id, data);
             setSelectedTask(null);
+          }}
+        />
+      )}
+      {/* Create First Task Modal */}
+      {isCreatingFirstTask && (
+        <TaskModal
+          mode="create"
+          defaultStatus="backlog"
+          onClose={() => setIsCreatingFirstTask(false)}
+          onSave={async (data) => {
+            await addTask(data);
+            setIsCreatingFirstTask(false);
           }}
         />
       )}
