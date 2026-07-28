@@ -68,7 +68,7 @@ const KanbanBoard = ({ onSelectTask }) => {
   return (
     <>
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex gap-4 p-4 overflow-x-auto h-full">
+        <div className="flex flex-col md:flex-row gap-4 p-4 overflow-x-hidden md:overflow-x-auto overflow-y-auto h-full">
           {COLUMNS.map((col) => (
             <Column
               key={col}
