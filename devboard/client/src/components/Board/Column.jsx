@@ -13,7 +13,7 @@ const Column = ({ columnId, tasks, onSelectTask, onAddTask }) => {
   const config = COLUMN_CONFIG[columnId];
 
   return (
-    <div className="flex flex-col w-56 flex-shrink-0">
+    <div className="flex flex-col w-full md:w-56 flex-shrink-0">
       {/* Header */}
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">
