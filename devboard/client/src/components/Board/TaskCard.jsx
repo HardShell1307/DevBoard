@@ -9,6 +9,14 @@ const PRIORITY_COLORS = {
   low: "bg-green-500/20 text-green-400",
 };
 
+const timeAgo = (date) => {
+  const diff = Date.now() - new Date(date);
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return "today";
+  if (days === 1) return "1 day ago";
+  return `${days} days ago`;
+};
+
 const TaskCard = ({ task, index, onSelect }) => {
   const [expanded, setExpanded] = useState(false);
   const [selectedSnippet, setSelectedSnippet] = useState(0);
@@ -149,6 +157,9 @@ const TaskCard = ({ task, index, onSelect }) => {
               {task.pomodoroCount > 0 && <span>🍅 ×{task.pomodoroCount}</span>}
               {task.snippets?.length > 0 && (
                 <span>📎 {task.snippets.length}</span>
+              )}
+              {task.createdAt && (
+                <span>🕐 {timeAgo(task.createdAt)}</span>
               )}
             </div>
             {task.assignee?.name && (
