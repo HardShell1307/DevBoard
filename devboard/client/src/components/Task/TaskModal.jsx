@@ -60,10 +60,14 @@ const TaskModal = ({
           <input
             type="text"
             placeholder="Task title *"
+            maxLength={100}
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
           />
+          <div className="text-xs text-[#555] text-right -mt-2">
+            {form.title.length}/100
+          </div>
 
           <textarea
             placeholder="Description (optional)"
