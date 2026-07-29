@@ -13,7 +13,9 @@ export const BoardProvider = ({ children }) => {
   const [allTasks, setAllTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
+  const [activeTag, setActiveTag] = useState(null);
+
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("devboard_user");
     try {
@@ -101,16 +103,25 @@ export const BoardProvider = ({ children }) => {
   };
 
   const tasks = useMemo(() => {
+    let filtered = allTasks;
+
+    // Filter by active tag if one is selected
+    if (activeTag) {
+      filtered = filtered.filter((task) =>
+        task.tags?.includes(activeTag)
+      );
+    }
+
     const query = searchQuery.trim().toLowerCase();
 
-    if (!query) return allTasks;
+    if (!query) return filtered;
 
     const priorityLabel = (priority) => {
       if (!priority) return "";
       return `${priority} priority`;
     };
 
-    return allTasks.filter((task) => {
+    return filtered.filter((task) => {
       const title = task.title?.toLowerCase() || "";
       const description = task.description?.toLowerCase() || "";
       const tags = task.tags?.join(" ").toLowerCase() || "";
@@ -125,7 +136,7 @@ export const BoardProvider = ({ children }) => {
         priorityText.includes(query)
       );
     });
-  }, [allTasks, searchQuery]);
+  }, [allTasks, searchQuery, activeTag]);
 
   return (
     <BoardContext.Provider
@@ -135,6 +146,8 @@ export const BoardProvider = ({ children }) => {
         user,
         searchQuery,
         setSearchQuery,
+        activeTag,
+        setActiveTag,
         addTask,
         updateTask,
         deleteTask,
