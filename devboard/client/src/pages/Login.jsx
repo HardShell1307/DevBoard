@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // <-- 1. Import useNavigate
 import { useBoard } from "../context/BoardContext";
 
 const Login = () => {
-  
   const { login } = useBoard();
+  const navigate = useNavigate(); // <-- 2. Initialize navigate hook
+
   useEffect(() => {
-  document.title = "Login — DevBoard";
-}, []);
+    document.title = "Login — DevBoard";
+  }, []);
+
   const [isRegister, setIsRegister] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
@@ -16,17 +19,40 @@ const Login = () => {
 
   const handleSubmit = async () => {
     setError("");
+    if (!form.email || !form.password || (isRegister && !form.name)) {
+      setError("Please fill in all required fields");
+      return;
+    }
+
     setLoading(true);
     try {
       const endpoint = isRegister ? "/api/auth/register" : "/api/auth/login";
-      const payload = isRegister ? form : { email: form.email, password: form.password };
+      
+      const payload = isRegister
+        ? { name: form.name.trim(), email: form.email.trim(), password: form.password }
+        : { email: form.email.trim(), password: form.password };
+
       const { data } = await axios.post(endpoint, payload);
-      login(data);
+
+      // 1. Save user state to context
+      if (login) {
+        login(data);
+      }
+
+      // 2. Clear error & Direct Navigate to Dashboard Route "/"
+      setError("");
+      navigate("/", { replace: true }); // <-- 3. Router navigate call!
+
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong");
+      setError(err.response?.data?.message || err.response?.data?.error || "Something went wrong");
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleMode = () => {
+    setIsRegister((prev) => !prev);
+    setError("");
   };
 
   return (
@@ -42,30 +68,28 @@ const Login = () => {
           {isRegister && (
             <input
               type="text"
-              placeholder="Your name"
+              placeholder="Your name *"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2.5 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
             />
           )}
+
           <input
             type="email"
-            placeholder="Email"
+            placeholder="Email *"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2.5 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
           />
+
           <div className="relative">
             <input
               type={show ? "text" : "password"}
-              placeholder="Password"
+              placeholder="Password *"
               value={form.password}
-              onChange={(e) =>
-                setForm({ ...form, password: e.target.value })
-              }
-              onKeyDown={(e) =>
-                e.key === "Enter" && handleSubmit()
-              }
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
               className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2.5 pr-10 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
             />
             <button
@@ -88,8 +112,9 @@ const Login = () => {
           </button>
 
           <button
-            onClick={() => { setIsRegister((v) => !v); setError(""); }}
-            className="text-xs text-[#666] hover:text-[#aaa] transition text-center"
+            type="button"
+            onClick={toggleMode}
+            className="text-xs text-[#666] hover:text-[#aaa] transition text-center mt-1"
           >
             {isRegister ? "Already have an account? Sign in" : "No account? Register"}
           </button>

@@ -2,6 +2,7 @@
   "name": "devboard-client",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10,6 +11,7 @@
   "dependencies": {
     "@hello-pangea/dnd": "^16.3.0",
     "axios": "^1.5.0",
+    "canvas-confetti": "^1.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.16.0",
