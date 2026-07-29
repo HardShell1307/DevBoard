@@ -15,7 +15,7 @@ const LoadingSpinner = () => (
 );
 
 const Dashboard = () => {
-  const { user, logout, updateTask, loading, searchQuery, setSearchQuery, tasks, addTask } = useBoard();
+  const { user, logout, updateTask, loading, searchQuery, setSearchQuery, tasks, addTask, activeTag, setActiveTag } = useBoard();
   useEffect(() => {
     document.title = "Dashboard — DevBoard";
   }, []);
@@ -42,6 +42,17 @@ const Dashboard = () => {
           <span className="text-xs bg-purple-600/20 text-purple-400 px-2 py-0.5 rounded-full ml-1">
             beta
           </span>
+          <span className="text-xs text-[#666] ml-2">
+            {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
+          </span>
+          {activeTag && (
+            <button
+              onClick={() => setActiveTag(null)}
+              className="text-xs bg-purple-600/30 text-purple-300 px-2 py-0.5 rounded-full flex items-center gap-1 hover:bg-purple-600/40 transition"
+            >
+              #{activeTag} <span aria-hidden>✕</span>
+            </button>
+          )}
         </div>
         <div className="flex-1 w-full max-w-xl md:px-6">
           <label className="relative block">

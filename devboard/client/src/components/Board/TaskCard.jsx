@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useBoard } from "../../context/BoardContext";
 
 const PRIORITY_COLORS = {
   high: "bg-red-500/20 text-red-400",
@@ -12,6 +13,7 @@ const PRIORITY_COLORS = {
 const TaskCard = ({ task, index, onSelect }) => {
   const [expanded, setExpanded] = useState(false);
   const [selectedSnippet, setSelectedSnippet] = useState(0);
+  const { activeTag, setActiveTag } = useBoard();
 
   // Check if the task due date has passed and the task is not completed ---------
   const today = new Date();
@@ -125,7 +127,15 @@ const TaskCard = ({ task, index, onSelect }) => {
             {task.tags?.map((tag) => (
               <span
                 key={tag}
-                className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--border-primary)] text-[#888]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveTag(activeTag === tag ? null : tag);
+                }}
+                className={`text-[10px] px-1.5 py-0.5 rounded cursor-pointer transition
+                  ${activeTag === tag
+                    ? "bg-purple-600/30 text-purple-300 ring-1 ring-purple-500"
+                    : "bg-[var(--border-primary)] text-[#888] hover:bg-[var(--border-primary)]/80"
+                  }`}
               >
                 {tag}
               </span>
