@@ -13,29 +13,55 @@ export const BoardProvider = ({ children }) => {
   const [allTasks, setAllTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("devboard_user");
-    return saved ? JSON.parse(saved) : null;
+    try {
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
   });
 
-  const authHeaders = () => ({
-    headers: { Authorization: `Bearer ${user?.token}` },
-  });
+  // Safe Token Extractor
+  const getToken = () => {
+    if (!user) return null;
+    return user.token || user.jwt || (typeof user === "string" ? user : null);
+  };
+
+  const authHeaders = () => {
+    const token = getToken();
+    return {
+      headers: { Authorization: token ? `Bearer ${token}` : "" },
+    };
+  };
 
   const fetchTasks = async () => {
-    if (!user) return;
+    const token = getToken();
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       const { data } = await axios.get("/api/tasks", authHeaders());
       setAllTasks(data);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching tasks:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchTasks(); }, [user]);
+  useEffect(() => {
+    if (user) {
+      fetchTasks();
+    } else {
+      setAllTasks([]);
+      setLoading(false);
+    }
+  }, [user]);
 
   const addTask = async (taskData) => {
     const { data } = await axios.post("/api/tasks", taskData, authHeaders());
@@ -58,8 +84,13 @@ export const BoardProvider = ({ children }) => {
   };
 
   const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem("devboard_user", JSON.stringify(userData));
+    // Standardize user object structure
+    const formattedUser = userData.token
+      ? userData
+      : { token: userData.token || userData.jwt, ...userData };
+
+    setUser(formattedUser);
+    localStorage.setItem("devboard_user", JSON.stringify(formattedUser));
   };
 
   const logout = () => {
