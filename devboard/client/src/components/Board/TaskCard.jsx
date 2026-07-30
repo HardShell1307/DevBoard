@@ -18,6 +18,7 @@ const TaskCard = ({ task, index, onSelect }) => {
   today.setHours(0, 0, 0, 0);
   const dueDate = new Date(task.dueDate);
   const isOverdue = task.dueDate && dueDate < today && task.status !== "done";
+  // const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== "Done";
   // ------------------
 
   return (
@@ -29,7 +30,8 @@ const TaskCard = ({ task, index, onSelect }) => {
           {...provided.dragHandleProps}
           onClick={() => onSelect(task)}
           className={`bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
-            ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : "border-[var(--border-primary)] hover:border-[#444]"}`}
+            ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : isOverdue
+      ? "border-red-500 border-l-4 hover:border-red-400": "border-[var(--border-primary)] hover:border-[#444]"}`}
         >
           {/* Title */}
           <p className="text-sm font-medium text-[#f0f0f0] leading-snug mb-2">
