@@ -66,22 +66,45 @@ export const BoardProvider = ({ children }) => {
   }, [user]);
 
   const addTask = async (taskData) => {
-    const { data } = await axios.post("/api/tasks", taskData, authHeaders());
-    setAllTasks((prev) => [...prev, data]);
+    try {
+      const { data } = await axios.post("/api/tasks", taskData, authHeaders());
+      setAllTasks((prev) => [...prev, data]);
+    } catch (err) {
+      console.error("addTask failed", err);
+      throw err;
+    }
   };
 
   const updateTask = async (id, updates) => {
-    const { data } = await axios.put(`/api/tasks/${id}`, updates, authHeaders());
-    setAllTasks((prev) => prev.map((t) => (t._id === id ? data : t)));
+    try {
+      const { data } = await axios.put(
+        `/api/tasks/${id}`,
+        updates,
+        authHeaders(),
+      );
+      setAllTasks((prev) => prev.map((t) => (t._id === id ? data : t)));
+    } catch (err) {
+      console.error("updateTask failed:", err);
+      throw err;
+    }
   };
 
   const deleteTask = async (id) => {
-    await axios.delete(`/api/tasks/${id}`, authHeaders());
-    setAllTasks((prev) => prev.filter((t) => t._id !== id));
+    try {
+      await axios.delete(`/api/tasks/${id}`, authHeaders());
+      setAllTasks((prev) => prev.filter((t) => t._id !== id));
+    } catch (err) {
+      console.error("deleteTask failed:", err);
+      throw err;
+    }
   };
 
   const addSnippet = async (taskId, snippet) => {
-    const { data } = await axios.post(`/api/tasks/${taskId}/snippets`, snippet, authHeaders());
+    const { data } = await axios.post(
+      `/api/tasks/${taskId}/snippets`,
+      snippet,
+      authHeaders(),
+    );
     setAllTasks((prev) => prev.map((t) => (t._id === taskId ? data : t)));
   };
 
@@ -107,9 +130,7 @@ export const BoardProvider = ({ children }) => {
 
     // Filter by active tag if one is selected
     if (activeTag) {
-      filtered = filtered.filter((task) =>
-        task.tags?.includes(activeTag)
-      );
+      filtered = filtered.filter((task) => task.tags?.includes(activeTag));
     }
 
     const query = searchQuery.trim().toLowerCase();
