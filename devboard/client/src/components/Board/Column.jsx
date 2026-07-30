@@ -3,10 +3,10 @@ import { Droppable } from "@hello-pangea/dnd";
 import TaskCard from "./TaskCard";
 
 const COLUMN_CONFIG = {
-  backlog:    { label: "Backlog",      color: "#888",     dot: "bg-gray-500" },
-  inprogress: { label: "In Progress",  color: "#7F77DD",  dot: "bg-purple-500" },
-  review:     { label: "Review",       color: "#EF9F27",  dot: "bg-yellow-500" },
-  done:       { label: "Done",         color: "#639922",  dot: "bg-green-500" },
+  backlog:    { label: "Backlog",     color: "#888",   dot: "bg-gray-500" },
+  inprogress: { label: "In Progress", color: "#7F77DD", dot: "bg-purple-500" },
+  review:     { label: "Review",      color: "#EF9F27", dot: "bg-yellow-500" },
+  done:       { label: "Done",        color: "#639922", dot: "bg-green-500" },
 };
 
 const Column = ({ columnId, tasks, onSelectTask, onAddTask }) => {
@@ -36,14 +36,20 @@ const Column = ({ columnId, tasks, onSelectTask, onAddTask }) => {
             className={`flex flex-col gap-2 flex-1 min-h-[80px] rounded-lg p-1 transition-colors
               ${snapshot.isDraggingOver ? "bg-purple-500/5" : ""}`}
           >
-            {tasks.map((task, index) => (
-              <TaskCard
-                key={task._id}
-                task={task}
-                index={index}
-                onSelect={onSelectTask}
-              />
-            ))}
+            {tasks.length === 0 ? (
+              <div className="flex items-center justify-center text-center p-3 text-xs text-[#666] border border-dashed border-[var(--border-primary)] rounded-md my-auto">
+                No tasks here — drag one in or click + Add card
+              </div>
+            ) : (
+              tasks.map((task, index) => (
+                <TaskCard
+                  key={task._id}
+                  task={task}
+                  index={index}
+                  onSelect={onSelectTask}
+                />
+              ))
+            )}
             {provided.placeholder}
           </div>
         )}
