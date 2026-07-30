@@ -114,6 +114,7 @@ const Dashboard = () => {
             await updateTask(selectedTask._id, data);
             setSelectedTask(null);
           }}
+          updateTask={updateTask}
         />
       )}
       {/* Create First Task Modal */}
