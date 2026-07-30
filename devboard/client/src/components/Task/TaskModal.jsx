@@ -6,6 +6,7 @@ const TaskModal = ({
   defaultStatus = "backlog",
   onClose,
   onSave,
+  updateTask,
 }) => {
   const [form, setForm] = useState({
     title: task?.title || "",
@@ -58,6 +59,11 @@ const TaskModal = ({
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleDeleteSnippet = async (indexToRemove) => {
+    const updatedSnippets = task.snippets.filter((_, i) => i !== indexToRemove);
+    await updateTask(task._id, { snippets: updatedSnippets });
   };
 
   const handleSave = async () => {
@@ -189,7 +195,20 @@ const TaskModal = ({
             />
           </div>
 
-          {/* Code Snippet */}
+          {/* Existing Snippets */}
+          {task?.snippets?.map((snippet, index) => (
+            <div key={index} className="flex items-center justify-between bg-[#0f0f10] rounded-lg px-3 py-2 mb-2">
+              <span className="text-xs font-mono text-[#888]">{snippet.language} snippet</span>
+              <button
+                onClick={() => handleDeleteSnippet(index)}
+                className="text-red-400 hover:text-red-300 text-xs"
+              >
+                ✕ Remove
+              </button>
+            </div>
+          ))}
+
+          {/* Add Code Snippet */}
           <div className="border border-[var(--border-primary)] rounded-lg overflow-hidden">
             <div className="flex items-center justify-between px-3 py-2 bg-[var(--bg-primary)] border-b border-[var(--border-primary)]">
               <span className="text-xs text-[#888]">{"</>"} Code Snippet</span>
