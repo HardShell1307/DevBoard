@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useBoard } from "../../context/BoardContext";
 
 const TaskModal = ({
   task,
@@ -25,6 +26,7 @@ const TaskModal = ({
   // AI Loading & Error States
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiError, setAiError] = useState("");
+  const { deleteTask } = useBoard();
 
   const handleGenerateAI = async () => {
     if (!form.title.trim()) {
@@ -256,6 +258,17 @@ const TaskModal = ({
           >
             Cancel
           </button>
+          <button
+            onClick={async () => {
+            if (window.confirm('Delete this task?')) {
+             await deleteTask(task._id)
+             onClose()
+                }
+             }}
+            className="px-4 py-2 text-sm text-red-400 hover:text-red-300 transition"
+          >
+  Delete
+</button>
           <button
             onClick={handleSave}
             disabled={loading || !form.title.trim()}
