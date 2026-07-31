@@ -175,7 +175,7 @@ const TaskCard = ({ task, index, onSelect }) => {
               )}
             </div>
             {task.assignee?.name && (
-              <div className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
+              <div title={task.assignee.name} className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
                 {task.assignee.name[0].toUpperCase()}
               </div>
             )}
