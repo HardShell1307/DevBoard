@@ -19,6 +19,12 @@ const Login = () => {
 
   const handleSubmit = async () => {
     setError("");
+
+    if (isRegister && !form.name.trim()) return setError("Name is required");
+    if (!form.email.includes("@")) return setError("Enter a valid email");
+    if (form.password.length < 6)
+      return setError("Password must be at least 6 characters");
+    
     if (!form.email || !form.password || (isRegister && !form.name)) {
       setError("Please fill in all required fields");
       return;
@@ -27,9 +33,13 @@ const Login = () => {
     setLoading(true);
     try {
       const endpoint = isRegister ? "/api/auth/register" : "/api/auth/login";
-      
+
       const payload = isRegister
-        ? { name: form.name.trim(), email: form.email.trim(), password: form.password }
+        ? {
+            name: form.name.trim(),
+            email: form.email.trim(),
+            password: form.password,
+          }
         : { email: form.email.trim(), password: form.password };
 
       const { data } = await axios.post(endpoint, payload);
@@ -42,9 +52,12 @@ const Login = () => {
       // 2. Clear error & Direct Navigate to Dashboard Route "/"
       setError("");
       navigate("/", { replace: true }); // <-- 3. Router navigate call!
-
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data?.error || "Something went wrong");
+      setError(
+        err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Something went wrong",
+      );
     } finally {
       setLoading(false);
     }
@@ -61,7 +74,9 @@ const Login = () => {
         <div className="text-center mb-8">
           <div className="text-4xl mb-2">🗂️</div>
           <h1 className="text-2xl font-bold text-[#f0f0f0]">DevBoard</h1>
-          <p className="text-[#666] text-sm mt-1">Kanban built for developers</p>
+          <p className="text-[#666] text-sm mt-1">
+            Kanban built for developers
+          </p>
         </div>
 
         <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl p-6 flex flex-col gap-3">
@@ -108,7 +123,11 @@ const Login = () => {
             disabled={loading}
             className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium transition disabled:opacity-40"
           >
-            {loading ? "Please wait..." : isRegister ? "Create Account" : "Sign In"}
+            {loading
+              ? "Please wait..."
+              : isRegister
+                ? "Create Account"
+                : "Sign In"}
           </button>
 
           <button
@@ -116,7 +135,9 @@ const Login = () => {
             onClick={toggleMode}
             className="text-xs text-[#666] hover:text-[#aaa] transition text-center mt-1"
           >
-            {isRegister ? "Already have an account? Sign in" : "No account? Register"}
+            {isRegister
+              ? "Already have an account? Sign in"
+              : "No account? Register"}
           </button>
         </div>
       </div>
