@@ -5,15 +5,6 @@ import TaskModal from "../components/Task/TaskModal";
 import Heatmap from "../components/Heatmap/Heatmap";
 import { useBoard } from "../context/BoardContext";
 
-const LoadingSpinner = () => (
-  <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)]">
-    <div className="flex flex-col items-center gap-4">
-      <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-      <span className="text-[#a0a0a5] text-sm font-medium animate-pulse">Loading workspace...</span>
-    </div>
-  </div>
-);
-
 const Dashboard = () => {
   const { user, logout, updateTask, loading, searchQuery, setSearchQuery, tasks, addTask, activeTag, setActiveTag } = useBoard();
   useEffect(() => {
@@ -23,7 +14,20 @@ const Dashboard = () => {
   const [isCreatingFirstTask, setIsCreatingFirstTask] = useState(false);
 
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="flex gap-4 p-4">
+        {[1, 2, 3, 4].map((col) => (
+          <div key={col} className="flex flex-col w-56 gap-2">
+            {[1, 2, 3].map((card) => (
+              <div
+                key={card}
+                className="animate-pulse bg-[#2a2a2f] rounded-lg h-20 w-full"
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    );
   }
 
   const handleSessionComplete = async () => {
