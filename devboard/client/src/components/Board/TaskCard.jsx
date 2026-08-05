@@ -147,7 +147,7 @@ const TaskCard = ({ task, index, onSelect }) => {
                     : "bg-[var(--border-primary)] text-[#888] hover:bg-[var(--border-primary)]/80"
                   }`}
               >
-                {tag}
+                {tag.length > 15 ? tag.slice(0, 15) + "..." : tag}
               </span>
             ))}
           </div>

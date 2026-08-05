@@ -170,6 +170,7 @@ const TaskModal = ({
 
           <input
             type="text"
+            maxLength={20}
             placeholder="Tags (comma separated: react, api, bug)"
             value={form.tags}
             onChange={(e) => setForm({ ...form, tags: e.target.value })}
