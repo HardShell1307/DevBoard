@@ -30,6 +30,12 @@ const Dashboard = () => {
     );
   }
 
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to logout?")) {
+      logout();
+    }
+  };
+
   const handleSessionComplete = async () => {
     if (selectedTask) {
       await updateTask(selectedTask._id, { pomodoroCount: (selectedTask.pomodoroCount || 0) + 1 });
@@ -72,7 +78,7 @@ const Dashboard = () => {
         <div className="flex items-center gap-3">
           <span className="text-xs text-[#666]">👋 {user?.name}</span>
           <button
-            onClick={logout}
+            onClick={handleLogout}
             className="text-xs text-[#666] hover:text-[#aaa] transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg"
           >
             Logout
