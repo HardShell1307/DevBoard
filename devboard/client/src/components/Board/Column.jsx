@@ -10,7 +10,12 @@ const COLUMN_CONFIG = {
 };
 
 const Column = ({ columnId, tasks, onSelectTask, onAddTask }) => {
-  const config = COLUMN_CONFIG[columnId];
+  const config =
+  COLUMN_CONFIG[columnId] || {
+    label: columnId,
+    dot: "bg-gray-500",
+    color: "#888",
+  };
 
   return (
     <div className="flex flex-col w-full md:w-56 flex-shrink-0">
