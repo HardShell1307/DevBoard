@@ -82,6 +82,14 @@ const Dashboard = () => {
           </label>
         </div>
         <div className="flex items-center gap-3">
+          <a
+            href="https://github.com/anoopcodehack/devboard"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-[#666] hover:text-white transition px-3 py-1.5 border border-[#2a2a2f] rounded-lg"
+          >
+            ⭐ Star on GitHub
+          </a>
           <span className="text-xs text-[#666]">👋 {user?.name}</span>
 
           <button
