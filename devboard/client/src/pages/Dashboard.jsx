@@ -54,7 +54,7 @@ const Dashboard = () => {
       <div className="flex flex-col gap-3 px-5 py-3 bg-(--bg-card) border-b border-(--border-primary) md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-lg">🗂️</span>
-          <span className="font-semibold text-[#f0f0f0]">DevBoard</span>
+          <span className="font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">DevBoard</span>
           <span className="text-xs bg-purple-600/20 text-purple-400 px-2 py-0.5 rounded-full ml-1">
             beta
           </span>
