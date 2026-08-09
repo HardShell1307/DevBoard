@@ -38,28 +38,85 @@ const KanbanBoard = ({ onSelectTask }) => {
     tasks.filter((t) => t.status === status).sort((a, b) => a.order - b.order);
 
   const onDragEnd = async (result) => {
-    const { destination, source } = result;
+    const { destination, source, draggableId } = result;
 
     if (!destination) return;
 
-    if (destination.droppableId === "done") {
+    // Dropped in the same place — nothing to do
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    if (
+      destination.droppableId === "done" &&
+      source.droppableId !== "done"
+    ) {
       confetti({ particleCount: 100, spread: 70 });
     }
 
-    const colTasks = getTasksByStatus(destination.droppableId);
-    const reordered = Array.from(colTasks);
+    const sourceTasks = Array.from(getTasksByStatus(source.droppableId));
+    const destTasks =
+      source.droppableId === destination.droppableId
+        ? sourceTasks
+        : Array.from(getTasksByStatus(destination.droppableId));
 
-    const [moved] = reordered.splice(source.index, 1);
-    reordered.splice(destination.index, 0, moved);
+    // Prefer the task at source.index; fall back to draggableId
+    const idMatch = (task) => String(task._id) === String(draggableId);
+    let moved =
+      sourceTasks[source.index] && idMatch(sourceTasks[source.index])
+        ? sourceTasks[source.index]
+        : sourceTasks.find(idMatch) || tasks.find(idMatch);
 
-    await Promise.all(
-      reordered.map((task, index) =>
+    if (!moved) return;
+
+    // Remove from source column list
+    const sourceIndex = sourceTasks.findIndex(
+      (t) => String(t._id) === String(moved._id),
+    );
+    if (sourceIndex !== -1) {
+      sourceTasks.splice(sourceIndex, 1);
+    }
+
+    if (source.droppableId === destination.droppableId) {
+      // Same-column reorder
+      sourceTasks.splice(destination.index, 0, moved);
+
+      await Promise.all(
+        sourceTasks.map((task, index) =>
+          updateTask(task._id, {
+            status: source.droppableId,
+            order: index,
+          }),
+        ),
+      );
+      return;
+    }
+
+    // Cross-column move: insert into destination with new status
+    destTasks.splice(destination.index, 0, {
+      ...moved,
+      status: destination.droppableId,
+    });
+
+    await Promise.all([
+      // Re-order remaining tasks in the source column
+      ...sourceTasks.map((task, index) =>
+        updateTask(task._id, {
+          status: source.droppableId,
+          order: index,
+        }),
+      ),
+      // Assign moved task + reorder destination column
+      ...destTasks.map((task, index) =>
         updateTask(task._id, {
           status: destination.droppableId,
           order: index,
         }),
       ),
-    );
+    ]);
   };
 
   const handleAddTask = (columnId) => {

@@ -26,11 +26,16 @@ router.post("/", protect, async (req, res) => {
 // PUT /api/tasks/:id — update task (status, content, etc.)
 router.put("/:id", protect, async (req, res) => {
   try {
-    const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
+    const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-    });
-    if (!task) return res.status(404).json({ message: "Task not found" });
-    res.json(task);
+    }).populate("assignee", "name email avatar");
+    if (!updatedTask) return res.status(404).json({ message: "Task not found" });
+
+    // Broadcast so other open boards update without refresh
+    const io = req.app.get("io");
+    if (io) io.emit("task:updated", updatedTask);
+
+    res.json(updatedTask);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
