@@ -32,7 +32,7 @@ const TaskCard = ({ task, index, onSelect }) => {
   // ------------------
 
   return (
-    <Draggable draggableId={task._id} index={index}>
+    <Draggable draggableId={String(task._id)} index={index}>
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}

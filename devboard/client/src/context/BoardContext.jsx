@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import axios from "axios";
+import { io } from "socket.io-client";
 
 const BoardContext = createContext();
 
@@ -63,6 +64,25 @@ export const BoardProvider = ({ children }) => {
       setAllTasks([]);
       setLoading(false);
     }
+  }, [user]);
+
+  // Real-time board sync via Socket.IO
+  useEffect(() => {
+    if (!user) return;
+
+    const socket = io("http://localhost:5000");
+
+    socket.on("task:updated", (updatedTask) => {
+      setAllTasks((prev) =>
+        prev.map((t) =>
+          String(t._id) === String(updatedTask._id) ? updatedTask : t,
+        ),
+      );
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, [user]);
 
   const addTask = async (taskData) => {
