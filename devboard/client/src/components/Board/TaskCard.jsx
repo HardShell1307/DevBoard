@@ -166,22 +166,25 @@ const TaskCard = ({ task, index, onSelect }) => {
                 {task.priority}
               </span>
             )}
-            {task.tags?.map((tag) => (
-              <span
-                key={tag}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveTag(activeTag === tag ? null : tag);
-                }}
-                className={`text-[10px] px-1.5 py-0.5 rounded cursor-pointer transition
-                  ${activeTag === tag
-                    ? "bg-purple-600/30 text-purple-300 ring-1 ring-purple-500"
-                    : "bg-[var(--border-primary)] text-[#888] hover:bg-[var(--border-primary)]/80"
-                  }`}
-              >
-                {tag.length > 15 ? tag.slice(0, 15) + "..." : tag}
-              </span>
-            ))}
+            {task.tags?.map((tag) => {
+              const t = tag.trim(); // legacy rows may hold untrimmed tags
+              return (
+                <span
+                  key={t}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveTag(activeTag === tag ? null : tag);
+                  }}
+                  className={`text-[10px] px-1.5 py-0.5 rounded cursor-pointer transition
+                    ${activeTag === tag
+                      ? "bg-purple-600/30 text-purple-300 ring-1 ring-purple-500"
+                      : "bg-[var(--border-primary)] text-[#888] hover:bg-[var(--border-primary)]/80"
+                    }`}
+                >
+                  {t.length > 15 ? t.slice(0, 15) + "..." : t}
+                </span>
+              );
+            })}
           </div>
 
           {/* Due date */}

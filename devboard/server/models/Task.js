@@ -32,4 +32,17 @@ const taskSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Normalize tags at the API boundary: trim whitespace, drop empties, dedupe.
+// Tags arrive from the modal, GitHub import, and AI suggestions — whitespace
+// differences must not create distinct tags (e.g. "react " vs "react").
+const sanitizeTags = (tags) => {
+  if (!Array.isArray(tags)) return [];
+  return tags
+    .filter((t) => typeof t === "string")
+    .map((t) => t.trim())
+    .filter((t) => t.length > 0)
+    .filter((t, i, arr) => arr.indexOf(t) === i);
+};
+
 module.exports = mongoose.model("Task", taskSchema);
+module.exports.sanitizeTags = sanitizeTags;
