@@ -42,11 +42,11 @@ const Dashboard = () => {
     }
   };
 
-  const handleLogout = () => {
+  /*const handleLogout = () => {
   if (window.confirm("Are you sure you want to logout?")) {
     logout();
   }
-};
+};*/
 
   return (
     <div className="flex flex-col h-screen bg-(--bg-primary)">
