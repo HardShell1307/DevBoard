@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -22,8 +22,54 @@ const timeAgo = (date) => {
 const TaskCard = ({ task, index, onSelect }) => {
   const [expanded, setExpanded] = useState(false);
   const [selectedSnippet, setSelectedSnippet] = useState(0);
-  const { activeTag, setActiveTag , updateTask } = useBoard();
+  const [contextMenu, setContextMenu] = useState(null);
+  const cardRef = useRef(null);
+  const { activeTag, setActiveTag , updateTask, deleteTask, addTask } = useBoard();
   const { suggestedTags,loadingTags,handleSuggestTags,handleAddTag } = useSuggestTags(task,selectedSnippet,updateTask);
+
+  // Right-click context menu (Edit / Delete / Duplicate) ---------
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY });
+  };
+
+  const closeContextMenu = () => setContextMenu(null);
+
+  const handleDuplicate = async () => {
+    closeContextMenu();
+    try {
+      await addTask({
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+        tags: task.tags,
+        snippets: task.snippets?.map(({ language, code }) => ({
+          language,
+          code,
+        })),
+        dueDate: task.dueDate,
+      });
+    } catch (err) {
+      console.error("Failed to duplicate task:", err);
+    }
+  };
+
+  // Close the menu when clicking (or right-clicking) elsewhere
+  useEffect(() => {
+    if (!contextMenu) return;
+    const handleClick = () => closeContextMenu();
+    const handleRightClick = (e) => {
+      if (!cardRef.current?.contains(e.target)) closeContextMenu();
+    };
+    window.addEventListener("click", handleClick);
+    window.addEventListener("contextmenu", handleRightClick);
+    return () => {
+      window.removeEventListener("click", handleClick);
+      window.removeEventListener("contextmenu", handleRightClick);
+    };
+  }, [contextMenu]);
+  // ------------------
 
   // Check if the task due date has passed and the task is not completed ---------
   const today = new Date();
@@ -37,10 +83,14 @@ const TaskCard = ({ task, index, onSelect }) => {
     <Draggable draggableId={String(task._id)} index={index}>
       {(provided, snapshot) => (
         <div
-          ref={provided.innerRef}
+          ref={(el) => {
+            provided.innerRef(el);
+            cardRef.current = el;
+          }}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           onClick={() => onSelect(task)}
+          onContextMenu={handleContextMenu}
           className={`bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
             ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : isOverdue
       ? "border-red-500 border-l-4 hover:border-red-400": "border-[var(--border-primary)] hover:border-[#444]"}`}
@@ -215,6 +265,48 @@ const TaskCard = ({ task, index, onSelect }) => {
               </div>
             )}
           </div>
+
+          {/* Context menu */}
+          {contextMenu && (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              onContextMenu={(e) => e.preventDefault()}
+              style={{ top: contextMenu.y, left: contextMenu.x }}
+              className="fixed z-50 w-32 py-1 bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-lg shadow-lg"
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  closeContextMenu();
+                  onSelect(task);
+                }}
+                className="w-full px-3 py-1.5 text-left text-xs text-[#f0f0f0] hover:bg-[var(--border-primary)]"
+              >
+                ✏️ Edit
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  closeContextMenu();
+                  deleteTask(task._id).catch((err) =>
+                    console.error("Failed to delete task:", err)
+                  );
+                }}
+                className="w-full px-3 py-1.5 text-left text-xs text-red-400 hover:bg-red-500/10"
+              >
+                🗑️ Delete
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDuplicate();
+                }}
+                className="w-full px-3 py-1.5 text-left text-xs text-[#f0f0f0] hover:bg-[var(--border-primary)]"
+              >
+                📄 Duplicate
+              </button>
+            </div>
+          )}
         </div>
       )}
     </Draggable>
