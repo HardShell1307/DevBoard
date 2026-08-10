@@ -6,7 +6,18 @@ import Heatmap from "../components/Heatmap/Heatmap";
 import { useBoard } from "../context/BoardContext";
 
 const Dashboard = () => {
-  const { user, logout, updateTask, loading, searchQuery, setSearchQuery, tasks, addTask, activeTag, setActiveTag } = useBoard();
+  const {
+    user,
+    logout,
+    updateTask,
+    loading,
+    searchQuery,
+    setSearchQuery,
+    tasks,
+    addTask,
+    activeTag,
+    setActiveTag,
+  } = useBoard();
   useEffect(() => {
     document.title = "Dashboard — DevBoard";
   }, []);
@@ -38,7 +49,9 @@ const Dashboard = () => {
 
   const handleSessionComplete = async () => {
     if (selectedTask) {
-      await updateTask(selectedTask._id, { pomodoroCount: (selectedTask.pomodoroCount || 0) + 1 });
+      await updateTask(selectedTask._id, {
+        pomodoroCount: (selectedTask.pomodoroCount || 0) + 1,
+      });
     }
   };
 
@@ -48,7 +61,9 @@ const Dashboard = () => {
       <div className="flex flex-col gap-3 px-5 py-3 bg-[var(--bg-card)] border-b border-[var(--border-primary)] md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-lg">🗂️</span>
-          <span className="font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">DevBoard</span>
+          <span className="font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            DevBoard
+          </span>
           <span className="text-xs bg-purple-600/20 text-purple-400 px-2 py-0.5 rounded-full ml-1">
             beta
           </span>
@@ -92,7 +107,6 @@ const Dashboard = () => {
           >
             Logout
           </button>
-
         </div>
       </div>
 
@@ -109,9 +123,12 @@ const Dashboard = () => {
         {tasks.length === 0 ? (
           <div className="flex-1 h-full flex flex-col items-center justify-center text-center p-8">
             <span className="text-6xl mb-4">👋</span>
-            <h2 className="text-2xl font-semibold text-[#f0f0f0] mb-2">Welcome to your board!</h2>
+            <h2 className="text-2xl font-semibold text-[#f0f0f0] mb-2">
+              Welcome to your board!
+            </h2>
             <p className="text-[#a0a0a5] mb-6 max-w-md">
-              You don't have any tasks yet. Click + Add card to create your first one.
+              You don't have any tasks yet. Click + Add card to create your
+              first one.
             </p>
             <button
               onClick={() => setIsCreatingFirstTask(true)}
