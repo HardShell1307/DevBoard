@@ -91,7 +91,7 @@ const TaskCard = ({ task, index, onSelect }) => {
           {...provided.dragHandleProps}
           onClick={() => onSelect(task)}
           onContextMenu={handleContextMenu}
-          className={`bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
+          className={`group bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
             ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : isOverdue
       ? "border-red-500 border-l-4 hover:border-red-400": "border-[var(--border-primary)] hover:border-[#444]"}`}
         >
@@ -259,11 +259,23 @@ const TaskCard = ({ task, index, onSelect }) => {
                 <span>🕐 {timeAgo(task.createdAt)}</span>
               )}
             </div>
+            <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => {
+              e.stopPropagation();
+              onSelect(task);
+            }}
+             className="opacity-0 group-hover:opacity-100 text-[10px] px-2 py-1 rounded bg-gray-600 text-white hover:bg-gray-700 transition-opacity"
+             >
+              ✏️
+             </button>
+
             {task.assignee?.name && (
               <div title={task.assignee.name} className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
                 {task.assignee.name[0].toUpperCase()}
               </div>
             )}
+          </div>
           </div>
 
           {/* Context menu */}
