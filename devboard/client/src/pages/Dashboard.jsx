@@ -10,6 +10,7 @@ const Dashboard = () => {
     user,
     logout,
     updateTask,
+    deleteTask,
     loading,
     searchQuery,
     setSearchQuery,
@@ -44,6 +45,13 @@ const Dashboard = () => {
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
       logout();
+    }
+  };
+
+  const handleClearDone = async () => {
+    if (window.confirm("Clear all done tasks?")) {
+      const doneTasks = tasks.filter((t) => t.status === "done");
+      await Promise.all(doneTasks.map((t) => deleteTask(t._id)));
     }
   };
 
@@ -100,7 +108,12 @@ const Dashboard = () => {
             ⭐ Star on GitHub
           </a>
           <span className="text-xs text-[#666]">👋 {user?.name}</span>
-
+          <button
+            onClick={handleClearDone}
+            className="text-xs text-[#666] hover:text-red-400 transition px-3 py-1.5 border border-[#2a2a2f] rounded-lg"
+          >
+            🗑️ Clear Done
+          </button>
           <button
             onClick={handleLogout}
             className="text-xs text-[#666] hover:text-[#aaa] transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg"
