@@ -7,7 +7,7 @@ import confetti from "canvas-confetti";
 
 const COLUMNS = ["backlog", "inprogress", "review", "done"];
 
-const KanbanBoard = ({ onSelectTask }) => {
+const KanbanBoard = ({ onSelectTask, activeCol }) => {
   const { tasks, updateTask, addTask } = useBoard();
   const [modalOpen, setModalOpen] = useState(false);
   const [defaultStatus, setDefaultStatus] = useState("backlog");
@@ -182,6 +182,7 @@ const KanbanBoard = ({ onSelectTask }) => {
               tasks={getTasksByStatus(col)}
               onSelectTask={onSelectTask}
               onAddTask={handleAddTask}
+              isActive={columns.indexOf(col) === activeCol}
             />
           ))}
           <button
