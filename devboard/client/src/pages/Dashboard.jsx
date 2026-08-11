@@ -38,7 +38,7 @@ const [isCreatingFirstTask, setIsCreatingFirstTask] = useState(false);
 
 const [showScrollTop, setShowScrollTop] = useState(false);
 
-
+const [activeCol, setActiveCol] = useState(0);
 
 
 
@@ -76,7 +76,23 @@ handleScroll
 
 }, []);
 
+useEffect(() => {
+  const handler = (e) => {
+    if (e.key === "ArrowRight") {
+      setActiveCol((prev) => Math.min(prev + 1, 3));
+    }
 
+    if (e.key === "ArrowLeft") {
+      setActiveCol((prev) => Math.max(prev - 1, 0));
+    }
+  };
+
+  window.addEventListener("keydown", handler);
+
+  return () => {
+    window.removeEventListener("keydown", handler);
+  };
+}, []);
 
 
 
@@ -393,6 +409,7 @@ className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg"
 
 <KanbanBoard 
 onSelectTask={setSelectedTask}
+activeCol={activeCol}
 />
 
 

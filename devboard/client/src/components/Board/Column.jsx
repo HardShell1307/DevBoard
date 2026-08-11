@@ -9,7 +9,7 @@ const COLUMN_CONFIG = {
   done:       { label: "Done",        color: "#639922", dot: "bg-green-500" },
 };
 
-const Column = ({ columnId, tasks, onSelectTask, onAddTask }) => {
+const Column = ({ columnId, tasks, onSelectTask, onAddTask, isActive }) => {
   const config =
   COLUMN_CONFIG[columnId] || {
     label: columnId,
@@ -18,7 +18,13 @@ const Column = ({ columnId, tasks, onSelectTask, onAddTask }) => {
   };
 
   return (
-    <div className="flex flex-col w-full md:w-56 flex-shrink-0">
+    <div
+  className={`flex flex-col w-full md:w-56 flex-shrink-0 rounded-lg transition-all ${
+    isActive
+      ? "border border-purple-500/60 shadow-[0_0_12px_rgba(139,92,246,0.25)]"
+      : "border border-transparent"
+  }`}
+>
       {/* Header */}
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">
