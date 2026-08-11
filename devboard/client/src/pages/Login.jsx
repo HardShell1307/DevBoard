@@ -14,6 +14,7 @@ const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(false);
 
@@ -44,14 +45,23 @@ const Login = () => {
 
       const { data } = await axios.post(endpoint, payload);
 
-      // 1. Save user state to context
-      if (login) {
-        login(data);
-      }
-
-      // 2. Clear error & Direct Navigate to Dashboard Route "/"
       setError("");
-      navigate("/", { replace: true }); // <-- 3. Router navigate call!
+
+      if (isRegister) {
+        setSuccess("Account created! Welcome to DevBoard 🎉");
+
+        setTimeout(() => {
+          if (login) {
+            login(data);
+          }
+          navigate("/", { replace: true });
+        }, 2000);
+      } else {
+        if (login) {
+          login(data);
+        }
+        navigate("/", { replace: true });
+      }
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -118,6 +128,10 @@ const Login = () => {
           </div>
 
           {error && <p className="text-red-400 text-xs">{error}</p>}
+
+          {success && (
+            <p className="text-green-400 text-xs text-center">{success}</p>
+          )}
 
           <button
             onClick={handleSubmit}
