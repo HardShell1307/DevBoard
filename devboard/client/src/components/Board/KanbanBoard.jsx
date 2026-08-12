@@ -7,8 +7,9 @@ import confetti from "canvas-confetti";
 
 const COLUMNS = ["backlog", "inprogress", "review", "done"];
 
-const KanbanBoard = ({ onSelectTask, activeCol }) => {
+const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol }) => {
   const { tasks, updateTask, addTask } = useBoard();
+  const displayedTasks = filteredTasks ?? tasks;
   const [modalOpen, setModalOpen] = useState(false);
   const [defaultStatus, setDefaultStatus] = useState("backlog");
 
@@ -35,7 +36,7 @@ const KanbanBoard = ({ onSelectTask, activeCol }) => {
   }, []);
 
   const getTasksByStatus = (status) =>
-    tasks.filter((t) => t.status === status).sort((a, b) => a.order - b.order);
+    displayedTasks.filter((t) => t.status === status).sort((a, b) => a.order - b.order);
 
   const onDragEnd = async (result) => {
     const { destination, source, draggableId } = result;

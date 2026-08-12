@@ -40,7 +40,16 @@ const [showScrollTop, setShowScrollTop] = useState(false);
 
 const [activeCol, setActiveCol] = useState(0);
 
+const [assigneeFilter, setAssigneeFilter] = useState("all");
 
+const assignees = [
+  ...new Set(tasks.map((task) => task.assignee?.name).filter(Boolean)),
+].sort();
+
+const filteredTasks = tasks.filter(
+  (task) =>
+    assigneeFilter === "all" || task.assignee?.name === assigneeFilter,
+);
 
 
 
@@ -240,9 +249,9 @@ beta
 
 <span className="text-sm text-[#a0a0a5]">
 
-{tasks.length}
+{filteredTasks.length}
 
-{tasks.length === 1 ? " task" : " tasks"}
+{filteredTasks.length === 1 ? " task" : " tasks"}
 
 </span>
 
@@ -266,9 +275,19 @@ className="text-xs bg-purple-600/30 text-purple-300 px-2 py-0.5 rounded-full fle
 
 )}
 
-
-
-
+<select
+  value={assigneeFilter}
+  onChange={(e) => setAssigneeFilter(e.target.value)}
+  aria-label="Filter tasks by assignee"
+  className="bg-[#2a2a2f] text-[#888] text-xs rounded-lg px-2 py-1.5 border border-[#333]"
+>
+  <option value="all">All Members</option>
+  {assignees.map((name) => (
+    <option key={name} value={name}>
+      {name}
+    </option>
+  ))}
+</select>
 
 
 <input
@@ -408,6 +427,7 @@ className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg"
 
 
 <KanbanBoard 
+tasks={filteredTasks}
 onSelectTask={setSelectedTask}
 activeCol={activeCol}
 />
