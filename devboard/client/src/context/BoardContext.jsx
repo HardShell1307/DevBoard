@@ -14,6 +14,7 @@ export const BoardProvider = ({ children }) => {
   const [allTasks, setAllTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [onlineUsers, setOnlineUsers] = useState(0);
 
   const [activeTag, setActiveTag] = useState(null);
 
@@ -68,9 +69,15 @@ export const BoardProvider = ({ children }) => {
 
   // Real-time board sync via Socket.IO
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setOnlineUsers(0);
+      return;
+    }
 
     const socket = io("http://localhost:5000");
+
+    socket.on("users:online", setOnlineUsers);
+    socket.on("disconnect", () => setOnlineUsers(0));
 
     socket.on("task:updated", (updatedTask) => {
       setAllTasks((prev) =>
@@ -185,6 +192,7 @@ export const BoardProvider = ({ children }) => {
         tasks,
         loading,
         user,
+        onlineUsers,
         searchQuery,
         setSearchQuery,
         activeTag,
