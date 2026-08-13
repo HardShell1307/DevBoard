@@ -13,10 +13,13 @@ const PRIORITY_COLORS = {
 
 const timeAgo = (date) => {
   const diff = Date.now() - new Date(date);
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
-  if (days === 0) return "today";
-  if (days === 1) return "1 day ago";
-  return `${days} days ago`;
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${days}d ago`;
 };
 
 const TaskCard = ({ task, index, onSelect }) => {
@@ -102,7 +105,7 @@ const TaskCard = ({ task, index, onSelect }) => {
 
           {/* GitHub issue link */}
           {task.githubIssueUrl && (
-            <a
+            
               href={task.githubIssueUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -276,7 +279,30 @@ const TaskCard = ({ task, index, onSelect }) => {
                 </div>
               )}
             </div>
+            <button
+              onClick={(e) => {
+              e.stopPropagation();
+              onSelect(task);
+            }}
+             className="opacity-0 group-hover:opacity-100 text-[10px] px-2 py-1 rounded bg-gray-600 text-white hover:bg-gray-700 transition-opacity"
+             >
+              ✏️
+             </button>
+
+            {task.assignee?.name && (
+              <div title={task.assignee.name} className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
+                {task.assignee.name[0].toUpperCase()}
+              </div>
+            )}
           </div>
+          </div>
+
+          {/* Last updated */}
+          {task.updatedAt && (
+            <div className="mt-1 text-[10px] text-[#666]">
+              ✏️ updated {timeAgo(task.updatedAt)}
+            </div>
+          )}
 
           {/* Context menu */}
           {contextMenu && (

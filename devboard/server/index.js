@@ -36,8 +36,17 @@ app.use("/api/ai", require("./routes/ai"));
 
 app.get("/", (req, res) => res.json({ message: "DevBoard API running 🚀" }));
 
+const onlineSockets = new Set();
+
 io.on("connection", (socket) => {
   console.log("client connected:", socket.id);
+  onlineSockets.add(socket.id);
+  io.emit("users:online", onlineSockets.size);
+
+  socket.on("disconnect", () => {
+    onlineSockets.delete(socket.id);
+    io.emit("users:online", onlineSockets.size);
+  });
 });
 
 mongoose

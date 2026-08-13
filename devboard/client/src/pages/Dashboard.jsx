@@ -9,6 +9,7 @@ const Dashboard = () => {
 
 const {
 user,
+onlineUsers,
 logout,
 updateTask,
 deleteTask,
@@ -38,9 +39,18 @@ const [isCreatingFirstTask, setIsCreatingFirstTask] = useState(false);
 
 const [showScrollTop, setShowScrollTop] = useState(false);
 
+const [activeCol, setActiveCol] = useState(0);
 
+const [assigneeFilter, setAssigneeFilter] = useState("all");
 
+const assignees = [
+  ...new Set(tasks.map((task) => task.assignee?.name).filter(Boolean)),
+].sort();
 
+const filteredTasks = tasks.filter(
+  (task) =>
+    assigneeFilter === "all" || task.assignee?.name === assigneeFilter,
+);
 
 
 
@@ -76,7 +86,23 @@ handleScroll
 
 }, []);
 
+useEffect(() => {
+  const handler = (e) => {
+    if (e.key === "ArrowRight") {
+      setActiveCol((prev) => Math.min(prev + 1, 3));
+    }
 
+    if (e.key === "ArrowLeft") {
+      setActiveCol((prev) => Math.max(prev - 1, 0));
+    }
+  };
+
+  window.addEventListener("keydown", handler);
+
+  return () => {
+    window.removeEventListener("keydown", handler);
+  };
+}, []);
 
 
 
@@ -223,10 +249,15 @@ beta
 
 
 <span className="text-sm text-[#a0a0a5]">
+🟢 {onlineUsers} online
+</span>
 
-{tasks.length}
 
-{tasks.length === 1 ? " task" : " tasks"}
+<span className="text-sm text-[#a0a0a5]">
+
+{filteredTasks.length}
+
+{filteredTasks.length === 1 ? " task" : " tasks"}
 
 </span>
 
@@ -250,9 +281,19 @@ className="text-xs bg-purple-600/30 text-purple-300 px-2 py-0.5 rounded-full fle
 
 )}
 
-
-
-
+<select
+  value={assigneeFilter}
+  onChange={(e) => setAssigneeFilter(e.target.value)}
+  aria-label="Filter tasks by assignee"
+  className="bg-[#2a2a2f] text-[#888] text-xs rounded-lg px-2 py-1.5 border border-[#333]"
+>
+  <option value="all">All Members</option>
+  {assignees.map((name) => (
+    <option key={name} value={name}>
+      {name}
+    </option>
+  ))}
+</select>
 
 
 <input
@@ -392,7 +433,9 @@ className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg"
 
 
 <KanbanBoard 
+tasks={filteredTasks}
 onSelectTask={setSelectedTask}
+activeCol={activeCol}
 />
 
 
