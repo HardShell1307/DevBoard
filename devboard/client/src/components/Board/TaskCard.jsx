@@ -263,6 +263,22 @@ const TaskCard = ({ task, index, onSelect }) => {
               )}
             </div>
             <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigator.clipboard.writeText(task.title);
+                }}
+                title="Copy title"
+                className="opacity-0 group-hover:opacity-100 text-[#555] hover:text-[#aaa] transition text-xs"
+              >
+                📋
+              </button>
+              {task.assignee?.name && (
+                <div title={task.assignee.name} className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
+                  {task.assignee.name[0].toUpperCase()}
+                </div>
+              )}
+            </div>
             <button
               onClick={(e) => {
               e.stopPropagation();
