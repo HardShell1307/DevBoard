@@ -9,6 +9,7 @@ const Dashboard = () => {
 
 const {
 user,
+onlineUsers,
 logout,
 updateTask,
 deleteTask,
@@ -245,6 +246,11 @@ beta
 
 
 <div className="flex items-center gap-4">
+
+
+<span className="text-sm text-[#a0a0a5]">
+🟢 {onlineUsers} online
+</span>
 
 
 <span className="text-sm text-[#a0a0a5]">
