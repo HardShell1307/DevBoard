@@ -25,11 +25,18 @@ const timeAgo = (date) => {
 const TaskCard = ({ task, index, onSelect }) => {
   const [expanded, setExpanded] = useState(false);
   const [selectedSnippet, setSelectedSnippet] = useState(0);
+  const [copied, setCopied] = useState(false);
   const [contextMenu, setContextMenu] = useState(null);
   const cardRef = useRef(null);
-  const { activeTag, setActiveTag , updateTask, deleteTask, addTask } = useBoard();
-  const { suggestedTags,loadingTags,handleSuggestTags,handleAddTag } = useSuggestTags(task,selectedSnippet,updateTask);
+  const { activeTag, setActiveTag, updateTask, deleteTask, addTask } = useBoard();
+  const { suggestedTags, loadingTags, handleSuggestTags, handleAddTag } = useSuggestTags(task, selectedSnippet, updateTask);
 
+  const handleCopy = (e) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(task.title);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
   // Right-click context menu (Edit / Delete / Duplicate) ---------
   const handleContextMenu = (e) => {
     e.preventDefault();
@@ -72,7 +79,6 @@ const TaskCard = ({ task, index, onSelect }) => {
       window.removeEventListener("contextmenu", handleRightClick);
     };
   }, [contextMenu]);
-  // ------------------
 
   // Check if the task due date has passed and the task is not completed ---------
   const today = new Date();
@@ -96,12 +102,24 @@ const TaskCard = ({ task, index, onSelect }) => {
           onContextMenu={handleContextMenu}
           className={`group bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
             ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : isOverdue
-      ? "border-red-500 border-l-4 hover:border-red-400": "border-[var(--border-primary)] hover:border-[#444]"}`}
+              ? "border-red-500 border-l-4 hover:border-red-400" : "border-[var(--border-primary)] hover:border-[#444]"}`}
         >
           {/* Title */}
-          <p className="text-sm font-medium text-[#f0f0f0] leading-snug mb-2">
-            {task.title}
-          </p>
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <p className="text-sm font-medium text-[#f0f0f0] leading-snug">
+              {task.title}
+            </p>
+
+            <button
+              type="button"
+              onClick={handleCopy}
+              aria-label={copied ? "Task title copied" : "Copy task title"}
+              title={copied ? "Copied!" : "Copy title"}
+              className="shrink-0 text-xs"
+            >
+              {copied ? "✅" : "📋"}
+            </button>
+          </div>
 
           {/* GitHub issue link */}
           {task.githubIssueUrl && (
@@ -120,26 +138,26 @@ const TaskCard = ({ task, index, onSelect }) => {
           {task.snippets?.length > 0 && (
             <div className=" mb-2">
               <div className="flex items-center justify-between mb-1">
-                 <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setExpanded((v) => !v);
-                }}
-                className="text-[10px] text-purple-400 hover:text-purple-300 mb-1"
-              >
-                {"</>"} {task.snippets.length} snippet
-                {task.snippets.length > 1 ? "s" : ""} {expanded ? "▲" : "▼"}
-              </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpanded((v) => !v);
+                  }}
+                  className="text-[10px] text-purple-400 hover:text-purple-300 mb-1"
+                >
+                  {"</>"} {task.snippets.length} snippet
+                  {task.snippets.length > 1 ? "s" : ""} {expanded ? "▲" : "▼"}
+                </button>
 
                 <button
-                 onClick={handleSuggestTags}
-                 disabled={loadingTags}
+                  onClick={handleSuggestTags}
+                  disabled={loadingTags}
                   className="text-[10px] px-2 py-1 rounded bg-purple-600 text-white hover:bg-purple-700"
                 >
                   {loadingTags ? "Loading..." : "Suggest tags"}
                 </button>
               </div>
-             
+
 
               <div className="flex gap-1 mb-2">
                 {task.snippets.map((snippet, index) => (
@@ -156,22 +174,22 @@ const TaskCard = ({ task, index, onSelect }) => {
                 ))}
               </div>
 
-                {suggestedTags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-2">
-                      {suggestedTags.map((tag) => (
-                        <button
-                          key={tag}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddTag(tag);
-                          }}
-                           className="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40 hover:bg-purple-500/40"
-                        >
-                          + {tag}
-                        </button>
-                      ))}
-                  </div>
-                )}
+              {suggestedTags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {suggestedTags.map((tag) => (
+                    <button
+                      key={tag}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddTag(tag);
+                      }}
+                      className="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40 hover:bg-purple-500/40"
+                    >
+                      + {tag}
+                    </button>
+                  ))}
+                </div>
+              )}
 
 
               {/* Updated Snippet Block with Copy Button */}
@@ -243,9 +261,8 @@ const TaskCard = ({ task, index, onSelect }) => {
           {/* Due date */}
           {task.dueDate && (
             <div
-              className={`mt-2 text-[10px] ${
-                isOverdue ? "text-red-400" : "text-[#888]"
-              }`}
+              className={`mt-2 text-[10px] ${isOverdue ? "text-red-400" : "text-[#888]"
+                }`}
             >
               📅 {new Date(task.dueDate).toLocaleDateString()}
             </div>
