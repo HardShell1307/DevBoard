@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useBoard } from "../../context/BoardContext";
 
 const TaskModal = ({
@@ -67,6 +67,13 @@ const TaskModal = ({
     const updatedSnippets = task.snippets.filter((_, i) => i !== indexToRemove);
     await updateTask(task._id, { snippets: updatedSnippets });
   };
+
+  useEffect(() => {
+    window.history.pushState(null, "", window.location.href);
+    const handlePop = () => onClose();
+    window.addEventListener("popstate", handlePop);
+    return () => window.removeEventListener("popstate", handlePop);
+  }, []);
 
   const handleSave = async () => {
     if (!form.title.trim()) return;
@@ -265,15 +272,15 @@ const TaskModal = ({
           </button>
           <button
             onClick={async () => {
-            if (window.confirm('Delete this task?')) {
-             await deleteTask(task._id)
-             onClose()
-                }
-             }}
+              if (window.confirm('Delete this task?')) {
+                await deleteTask(task._id)
+                onClose()
+              }
+            }}
             className="px-4 py-2 text-sm text-red-400 hover:text-red-300 transition"
           >
-  Delete
-</button>
+            Delete
+          </button>
           <button
             onClick={handleSave}
             disabled={loading || !form.title.trim()}
