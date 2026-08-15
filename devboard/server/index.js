@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const helmet = require("helmet");
 const dotenv = require("dotenv");
 const { rateLimit } = require("express-rate-limit");
 const { Server } = require("socket.io");
@@ -24,6 +25,7 @@ const io = new Server(server, {
 // Make io available to route handlers (req.app.get("io"))
 app.set("io", io);
 
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(limiter);
