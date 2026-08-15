@@ -151,6 +151,13 @@ const TaskModal = ({
               className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500 resize-none"
             />
 
+            <p className="text-[10px] text-[#666] mt-1">
+              {form.description.trim().split(/\s+/).filter(Boolean).length} word
+              {form.description.trim().split(/\s+/).filter(Boolean).length !== 1
+                ? "s"
+                : ""}
+            </p>
+
             {aiError && (
               <p className="text-xs text-red-400 mt-1">{aiError}</p>
             )}
