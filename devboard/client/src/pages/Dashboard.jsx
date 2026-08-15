@@ -22,13 +22,19 @@ activeTag,
 setActiveTag,
 } = useBoard();
 
+const inProgressCount = tasks.filter(
+  (task) => task.status === "inprogress"
+).length;
+
 
 
 useEffect(() => {
 
-document.title = "Dashboard — DevBoard";
+document.title = inProgressCount > 0
+  ? `(${inProgressCount}) DevBoard`
+  : "DevBoard";
 
-}, []);
+}, [inProgressCount]);
 
 
 
