@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import TaskCard from "./TaskCard";
 
@@ -10,6 +10,15 @@ const COLUMN_CONFIG = {
 };
 
 const Column = ({ columnId, tasks, onSelectTask, onAddTask, isActive }) => {
+
+  const [sorted, setSorted] = useState(false);
+
+  const displayTasks = sorted
+    ? [...tasks].sort((a, b) => {
+        const order = { high: 0, medium: 1, low: 2 };
+        return (order[a.priority] ?? 3) - (order[b.priority] ?? 3);
+      })
+    : tasks;
   const config =
   COLUMN_CONFIG[columnId] || {
     label: columnId,
@@ -36,6 +45,14 @@ const Column = ({ columnId, tasks, onSelectTask, onAddTask, isActive }) => {
             {tasks.length}
           </span>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setSorted((value) => !value)}
+          className="text-[10px] text-[#555] hover:text-purple-400 transition"
+        >
+          {sorted ? "🔃 sorted" : "🔃 sort"}
+        </button>
       </div>
 
       {/* Droppable cards area */}
@@ -52,7 +69,7 @@ const Column = ({ columnId, tasks, onSelectTask, onAddTask, isActive }) => {
                 No tasks here — drag one in or click + Add card
               </div>
             ) : (
-              tasks.map((task, index) => (
+              displayTasks.map((task, index) => (
                 <TaskCard
                   key={task._id}
                   task={task}
