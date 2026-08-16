@@ -147,7 +147,7 @@ const TaskCard = ({ task, index, onSelect }) => {
 
           {/* GitHub issue link */}
           {task.githubIssueUrl && (
-            
+            <a
               href={task.githubIssueUrl}
               target="_blank"
               rel="noopener noreferrer"
