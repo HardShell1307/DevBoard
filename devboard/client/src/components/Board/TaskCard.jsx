@@ -11,6 +11,12 @@ const PRIORITY_COLORS = {
   low: "bg-green-500/20 text-green-400",
 };
 
+const GLOW = {
+  high: "hover:shadow-red-500/20",
+  medium: "hover:shadow-yellow-500/20",
+  low: "hover:shadow-green-500/20",
+};
+
 const timeAgo = (date) => {
   const diff = Date.now() - new Date(date);
   const mins = Math.floor(diff / 60000);
@@ -101,6 +107,7 @@ const TaskCard = ({ task, index, onSelect }) => {
           onClick={() => onSelect(task)}
           onContextMenu={handleContextMenu}
           className={`group bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
+            hover:shadow-lg ${GLOW[task.priority] || "hover:shadow-purple-500/20"}
             ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : isOverdue
               ? "border-red-500 border-l-4 hover:border-red-400" : "border-[var(--border-primary)] hover:border-[#444]"}`}
         >
