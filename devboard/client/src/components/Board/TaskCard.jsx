@@ -6,9 +6,9 @@ import { useBoard } from "../../context/BoardContext";
 import { useSuggestTags } from "../../hooks/useSuggestTags";
 
 const PRIORITY_COLORS = {
-  high: "bg-red-500/20 text-red-400",
-  medium: "bg-yellow-500/20 text-yellow-400",
-  low: "bg-green-500/20 text-green-400",
+  high: "🔴 bg-red-500/20 text-red-400",
+  medium: "🟡 bg-yellow-500/20 text-yellow-400",
+  low: "🟢 bg-green-500/20 text-green-400",
 };
 
 const GLOW = {
@@ -16,6 +16,18 @@ const GLOW = {
   medium: "hover:shadow-yellow-500/20",
   low: "hover:shadow-green-500/20",
 };
+
+const TAG_COLORS = [
+  "bg-purple-500/20 text-purple-400",
+  "bg-blue-500/20 text-blue-400",
+  "bg-green-500/20 text-green-400",
+  "bg-red-500/20 text-red-400",
+  "bg-yellow-500/20 text-yellow-400",
+  "bg-pink-500/20 text-pink-400",
+];
+
+const getTagColor = (tag) =>
+  TAG_COLORS[tag.charCodeAt(0) % TAG_COLORS.length];
 
 const timeAgo = (date) => {
   const diff = Date.now() - new Date(date);
@@ -259,9 +271,10 @@ const TaskCard = ({ task, index, onSelect }) => {
                     setActiveTag(activeTag === tag ? null : tag);
                   }}
                   className={`text-[10px] px-1.5 py-0.5 rounded cursor-pointer transition
+                    ${getTagColor(tag)}
                     ${activeTag === tag
-                      ? "bg-purple-600/30 text-purple-300 ring-1 ring-purple-500"
-                      : "bg-[var(--border-primary)] text-[#888] hover:bg-[var(--border-primary)]/80"
+                      ? "ring-1 ring-purple-500"
+                      : "hover:brightness-125"
                     }`}
                 >
                   {t.length > 15 ? t.slice(0, 15) + "..." : t}
