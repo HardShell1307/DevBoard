@@ -26,6 +26,10 @@ const inProgressCount = tasks.filter(
   (task) => task.status === "inprogress"
 ).length;
 
+const doneCount = tasks.filter((task) => task.status === "done").length;
+const donePercent =
+  tasks.length === 0 ? 0 : Math.round((doneCount / tasks.length) * 100);
+
 
 
 useEffect(() => {
@@ -265,6 +269,11 @@ beta
 
 {filteredTasks.length === 1 ? " task" : " tasks"}
 
+</span>
+
+
+<span className="text-sm text-green-400" title="Percentage of tasks completed">
+📊 {donePercent}% done
 </span>
 
 
