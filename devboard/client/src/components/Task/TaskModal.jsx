@@ -9,7 +9,7 @@ const TaskModal = ({
   onSave,
   updateTask,
 }) => {
-  const [form, setForm] = useState({
+  const initialForm = {
     title: task?.title || "",
     description: task?.description || "",
     status: task?.status || defaultStatus,
@@ -18,7 +18,12 @@ const TaskModal = ({
     githubIssueUrl: task?.githubIssueUrl || "",
     githubIssueNumber: task?.githubIssueNumber || "",
     dueDate: task?.dueDate || "",
-  });
+  };
+
+  const [form, setForm] = useState(initialForm);
+  const [confirmClose, setConfirmClose] = useState(false);
+
+  const isDirty = JSON.stringify(form) !== JSON.stringify(initialForm);
   const [snippetCode, setSnippetCode] = useState("");
   const [snippetLang, setSnippetLang] = useState("javascript");
   const [loading, setLoading] = useState(false);
@@ -71,10 +76,16 @@ const TaskModal = ({
 
   useEffect(() => {
     window.history.pushState(null, "", window.location.href);
-    const handlePop = () => onClose();
+    const handlePop = () => {
+      if (isDirty) {
+        setConfirmClose(true);
+      } else {
+        onClose();
+      }
+    };
     window.addEventListener("popstate", handlePop);
     return () => window.removeEventListener("popstate", handlePop);
-  }, []);
+  }, [isDirty, onClose]);
 
   const handleSave = async () => {
     if (!form.title.trim()) return;
@@ -97,15 +108,28 @@ const TaskModal = ({
     onClose();
   };
 
+  const handleClose = () => {
+    if (isDirty) {
+      setConfirmClose(true);
+    } else {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div
+      className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose();
+      }}
+    >
       <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl w-full max-w-lg shadow-2xl">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-primary)]">
           <h2 className="font-semibold text-[#f0f0f0]">
             {mode === "create" ? "New Task" : "Edit Task"}
           </h2>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-[#666] hover:text-[#aaa] text-xl"
           >
             ✕
@@ -273,7 +297,7 @@ const TaskModal = ({
 
         <div className="flex justify-end gap-2 px-5 py-4 border-t border-[var(--border-primary)]">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="px-4 py-2 text-sm text-[#888] hover:text-[#aaa] transition"
           >
             Cancel
@@ -318,6 +342,29 @@ const TaskModal = ({
           </button>
         </div>
       </div>
+
+      {confirmClose && (
+        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl p-6 max-w-sm shadow-2xl">
+            <h3 className="text-lg font-semibold text-[#f0f0f0] mb-2">Unsaved Changes</h3>
+            <p className="text-sm text-[#888] mb-4">You have unsaved changes. Are you sure you want to discard them?</p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmClose(false)}
+                className="px-4 py-2 text-sm text-[#888] hover:text-[#aaa] transition"
+              >
+                Keep Editing
+              </button>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 text-sm bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition"
+              >
+                Discard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
