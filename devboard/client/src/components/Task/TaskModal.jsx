@@ -34,6 +34,16 @@ const TaskModal = ({
   const [aiError, setAiError] = useState("");
   const { deleteTask } = useBoard();
 
+  useEffect(() => {
+    const handleKey = (e) => {
+      if(e.key === 'Escape') {
+        onClose();
+      }
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [])
+
   const handleGenerateAI = async () => {
     if (!form.title.trim()) {
       setAiError("Please enter a task title first.");
