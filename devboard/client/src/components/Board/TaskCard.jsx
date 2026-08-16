@@ -91,6 +91,11 @@ const TaskCard = ({ task, index, onSelect }) => {
   today.setHours(0, 0, 0, 0);
   const dueDate = new Date(task.dueDate);
   const isOverdue = task.dueDate && dueDate < today && task.status !== "done";
+  const isDueToday =
+    task.dueDate &&
+    task.status !== "done" &&
+    !isOverdue &&
+    dueDate.toDateString() === today.toDateString();
   // const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== "Done";
   // ------------------
 
@@ -268,10 +273,18 @@ const TaskCard = ({ task, index, onSelect }) => {
           {/* Due date */}
           {task.dueDate && (
             <div
-              className={`mt-2 text-[10px] ${isOverdue ? "text-red-400" : "text-[#888]"
+              className={`mt-2 text-[10px] flex items-center gap-1.5 ${isOverdue ? "text-red-400" : "text-[#888]"
                 }`}
             >
-              📅 {new Date(task.dueDate).toLocaleDateString()}
+              <span>📅 {new Date(task.dueDate).toLocaleDateString()}</span>
+              {isDueToday && (
+                <span
+                  className="bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded px-1 py-0.5 leading-none font-medium"
+                  title="This task is due today"
+                >
+                  due today!
+                </span>
+              )}
             </div>
           )}
 
