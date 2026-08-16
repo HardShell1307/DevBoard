@@ -22,6 +22,7 @@ const TaskModal = ({
   const [snippetCode, setSnippetCode] = useState("");
   const [snippetLang, setSnippetLang] = useState("javascript");
   const [loading, setLoading] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // AI Loading & Error States
   const [isGenerating, setIsGenerating] = useState(false);
@@ -277,17 +278,33 @@ const TaskModal = ({
           >
             Cancel
           </button>
-          <button
-            onClick={async () => {
-              if (window.confirm('Delete this task?')) {
-                await deleteTask(task._id)
-                onClose()
-              }
-            }}
-            className="px-4 py-2 text-sm text-red-400 hover:text-red-300 transition"
-          >
-            Delete
-          </button>
+          {confirmDelete ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-[#888]">You sure? 👀</span>
+              <button
+                onClick={async () => {
+                  await deleteTask(task._id);
+                  onClose();
+                }}
+                className="text-xs text-red-400 font-bold hover:text-red-300"
+              >
+                yes slay 💀
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="text-xs text-[#888] hover:text-[#aaa]"
+              >
+                nvm
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="px-4 py-2 text-sm text-red-400 hover:text-red-300 transition"
+            >
+              Delete
+            </button>
+          )}
           <button
             onClick={handleSave}
             disabled={loading || !form.title.trim()}
