@@ -21,8 +21,5 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
-  },
-  "overrides": {
-    "ip-address": "10.3.1"
   }
 }
