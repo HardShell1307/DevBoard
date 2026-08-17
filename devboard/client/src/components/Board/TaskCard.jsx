@@ -345,9 +345,9 @@ const TaskCard = ({ task, index, onSelect }) => {
               </div>
             )}
           </div>
-          </div>
 
           {/* Last updated */}
+          
           {task.updatedAt && (
             <div className="mt-1 text-[10px] text-[#666]">
               ✏️ updated {timeAgo(task.updatedAt)}
