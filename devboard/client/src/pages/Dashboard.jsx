@@ -11,6 +11,8 @@ const {
 user,
 onlineUsers,
 logout,
+fetchTasks,
+error,
 updateTask,
 deleteTask,
 loading,
@@ -124,11 +126,14 @@ Loading...
 }
 
 
-
-
-
-
-
+if (error) {
+  return (
+    <div>
+      <p>{error}</p>
+      <button onClick={fetchTasks}>Try again</button>
+    </div>
+  );
+}
 
 const handleLogout = () => {
 
