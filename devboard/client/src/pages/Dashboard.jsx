@@ -21,7 +21,7 @@ const Dashboard = () => {
   }, []);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isCreatingFirstTask, setIsCreatingFirstTask] = useState(false);
-
+  const [filter, setfilter] = useState('all');
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -66,6 +66,19 @@ const Dashboard = () => {
           </label>
         </div>
         <div className="flex items-center gap-3">
+          <select
+          onChange={(e) => setfilter(e.target.value)}
+          className="bg-[#2a2a2f] text-[#888] text-xs
+          rounded-lg px-2 py-1.5 border border-[#333]"
+          >
+            <option value="all">All Priority</option>
+            <option value="high">🔴 High</option>
+            <option value="medium">🟡 Medium</option>
+              <option value="low">🟢 Low</option>
+          </select>
+
+        </div>
+        <div className="flex items-center gap-3">
           <span className="text-xs text-[#666]">👋 {user?.name}</span>
           <button
             onClick={logout}
@@ -101,7 +114,7 @@ const Dashboard = () => {
             </button>
           </div>
         ) : (
-          <KanbanBoard onSelectTask={setSelectedTask} />
+          <KanbanBoard onSelectTask={setSelectedTask} priorityFilter={filter} />
         )}
       </div>
       {/* Task Edit Modal */}
