@@ -248,6 +248,12 @@ DevBoard
 beta
 </span>
 
+{import.meta.env.DEV && (
+<span className="text-xs bg-yellow-500 text-black px-1.5 py-0.5 rounded font-bold">
+DEV
+</span>
+)}
+
 
 </div>
 
