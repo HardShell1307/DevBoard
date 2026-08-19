@@ -6,17 +6,38 @@ import { useBoard } from "../../context/BoardContext";
 import { useSuggestTags } from "../../hooks/useSuggestTags";
 
 const PRIORITY_COLORS = {
-  high: "bg-red-500/20 text-red-400",
-  medium: "bg-yellow-500/20 text-yellow-400",
-  low: "bg-green-500/20 text-green-400",
+  high: "🔴 bg-red-500/20 text-red-400",
+  medium: "🟡 bg-yellow-500/20 text-yellow-400",
+  low: "🟢 bg-green-500/20 text-green-400",
 };
+
+const GLOW = {
+  high: "hover:shadow-red-500/20",
+  medium: "hover:shadow-yellow-500/20",
+  low: "hover:shadow-green-500/20",
+};
+
+const TAG_COLORS = [
+  "bg-purple-500/20 text-purple-400",
+  "bg-blue-500/20 text-blue-400",
+  "bg-green-500/20 text-green-400",
+  "bg-red-500/20 text-red-400",
+  "bg-yellow-500/20 text-yellow-400",
+  "bg-pink-500/20 text-pink-400",
+];
+
+const getTagColor = (tag) =>
+  TAG_COLORS[tag.charCodeAt(0) % TAG_COLORS.length];
 
 const timeAgo = (date) => {
   const diff = Date.now() - new Date(date);
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
-  if (days === 0) return "today";
-  if (days === 1) return "1 day ago";
-  return `${days} days ago`;
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${days}d ago`;
 };
 
 const TaskCard = ({ task, index, onSelect }) => {
@@ -82,6 +103,11 @@ const TaskCard = ({ task, index, onSelect }) => {
   today.setHours(0, 0, 0, 0);
   const dueDate = new Date(task.dueDate);
   const isOverdue = task.dueDate && dueDate < today && task.status !== "done";
+  const isDueToday =
+    task.dueDate &&
+    task.status !== "done" &&
+    !isOverdue &&
+    dueDate.toDateString() === today.toDateString();
   // const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== "Done";
   // ------------------
 
@@ -97,7 +123,8 @@ const TaskCard = ({ task, index, onSelect }) => {
           {...provided.dragHandleProps}
           onClick={() => onSelect(task)}
           onContextMenu={handleContextMenu}
-          className={`bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
+          className={`group bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
+            hover:shadow-lg ${GLOW[task.priority] || "hover:shadow-purple-500/20"}
             ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : isOverdue
               ? "border-red-500 border-l-4 hover:border-red-400" : "border-[var(--border-primary)] hover:border-[#444]"}`}
         >
@@ -244,9 +271,10 @@ const TaskCard = ({ task, index, onSelect }) => {
                     setActiveTag(activeTag === tag ? null : tag);
                   }}
                   className={`text-[10px] px-1.5 py-0.5 rounded cursor-pointer transition
+                    ${getTagColor(tag)}
                     ${activeTag === tag
-                      ? "bg-purple-600/30 text-purple-300 ring-1 ring-purple-500"
-                      : "bg-[var(--border-primary)] text-[#888] hover:bg-[var(--border-primary)]/80"
+                      ? "ring-1 ring-purple-500"
+                      : "hover:brightness-125"
                     }`}
                 >
                   {t.length > 15 ? t.slice(0, 15) + "..." : t}
@@ -258,10 +286,18 @@ const TaskCard = ({ task, index, onSelect }) => {
           {/* Due date */}
           {task.dueDate && (
             <div
-              className={`mt-2 text-[10px] ${isOverdue ? "text-red-400" : "text-[#888]"
+              className={`mt-2 text-[10px] flex items-center gap-1.5 ${isOverdue ? "text-red-400" : "text-[#888]"
                 }`}
             >
-              📅 {new Date(task.dueDate).toLocaleDateString()}
+              <span>📅 {new Date(task.dueDate).toLocaleDateString()}</span>
+              {isDueToday && (
+                <span
+                  className="bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded px-1 py-0.5 leading-none font-medium"
+                  title="This task is due today"
+                >
+                  due today!
+                </span>
+              )}
             </div>
           )}
 
@@ -276,12 +312,47 @@ const TaskCard = ({ task, index, onSelect }) => {
                 <span>🕐 {timeAgo(task.createdAt)}</span>
               )}
             </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigator.clipboard.writeText(task.title);
+                }}
+                title="Copy title"
+                className="opacity-0 group-hover:opacity-100 text-[#555] hover:text-[#aaa] transition text-xs"
+              >
+                📋
+              </button>
+              {task.assignee?.name && (
+                <div title={task.assignee.name} className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
+                  {task.assignee.name[0].toUpperCase()}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={(e) => {
+              e.stopPropagation();
+              onSelect(task);
+            }}
+             className="opacity-0 group-hover:opacity-100 text-[10px] px-2 py-1 rounded bg-gray-600 text-white hover:bg-gray-700 transition-opacity"
+             >
+              ✏️
+             </button>
+
             {task.assignee?.name && (
               <div title={task.assignee.name} className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
                 {task.assignee.name[0].toUpperCase()}
               </div>
             )}
           </div>
+
+          {/* Last updated */}
+          
+          {task.updatedAt && (
+            <div className="mt-1 text-[10px] text-[#666]">
+              ✏️ updated {timeAgo(task.updatedAt)}
+            </div>
+          )}
 
           {/* Context menu */}
           {contextMenu && (

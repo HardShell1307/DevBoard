@@ -14,7 +14,8 @@ export const BoardProvider = ({ children }) => {
   const [allTasks, setAllTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-
+  const [onlineUsers, setOnlineUsers] = useState(0);
+  const [error, setError] = useState(null);
   const [activeTag, setActiveTag] = useState(null);
 
   const [user, setUser] = useState(() => {
@@ -51,6 +52,7 @@ export const BoardProvider = ({ children }) => {
       const { data } = await axios.get("/api/tasks", authHeaders());
       setAllTasks(data);
     } catch (err) {
+      setError("Cannot connect to server. Please try again!");
       console.error("Error fetching tasks:", err);
     } finally {
       setLoading(false);
@@ -68,9 +70,15 @@ export const BoardProvider = ({ children }) => {
 
   // Real-time board sync via Socket.IO
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setOnlineUsers(0);
+      return;
+    }
 
     const socket = io("http://localhost:5000");
+
+    socket.on("users:online", setOnlineUsers);
+    socket.on("disconnect", () => setOnlineUsers(0));
 
     socket.on("task:updated", (updatedTask) => {
       setAllTasks((prev) =>
@@ -185,6 +193,7 @@ export const BoardProvider = ({ children }) => {
         tasks,
         loading,
         user,
+        onlineUsers,
         searchQuery,
         setSearchQuery,
         activeTag,
@@ -196,6 +205,7 @@ export const BoardProvider = ({ children }) => {
         login,
         logout,
         fetchTasks,
+        error
       }}
     >
       {children}

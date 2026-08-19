@@ -7,8 +7,9 @@ import confetti from "canvas-confetti";
 
 const COLUMNS = ["backlog", "inprogress", "review", "done"];
 
-const KanbanBoard = ({ onSelectTask }) => {
+const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol }) => {
   const { tasks, updateTask, addTask } = useBoard();
+  const displayedTasks = filteredTasks ?? tasks;
   const [modalOpen, setModalOpen] = useState(false);
   const [defaultStatus, setDefaultStatus] = useState("backlog");
 
@@ -35,7 +36,9 @@ const KanbanBoard = ({ onSelectTask }) => {
   }, []);
 
   const getTasksByStatus = (status) =>
-    tasks.filter((t) => t.status === status).sort((a, b) => a.order - b.order);
+    displayedTasks.filter((t) => t.status === status).sort((a, b) => a.order - b.order);
+
+  const isEmpty = COLUMNS.every(col => getTasksByStatus(col).length === 0);
 
   const onDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
@@ -175,23 +178,34 @@ const KanbanBoard = ({ onSelectTask }) => {
 
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex flex-col md:flex-row gap-4 p-4 overflow-x-hidden md:overflow-x-auto overflow-y-auto h-full">
-          {columns.map((col) => (
-            <Column
-              key={col}
-              columnId={col}
-              tasks={getTasksByStatus(col)}
-              onSelectTask={onSelectTask}
-              onAddTask={handleAddTask}
-            />
-          ))}
-          <button
-            className="flex"
-            onClick={() => {
-              setShowinput(true);
-            }}
-          >
-            + Add Column
-          </button>
+          {isEmpty ? (
+            <div className="flex flex-col items-center justify-center w-full h-64 text-gray-500">
+              <span className="text-4xl mb-4">🔍</span>
+              <h3 className="text-xl font-semibold mb-2">No tasks found!</h3>
+              <p className="text-sm">Try a different filter or create a new task</p>
+            </div>
+          ) : (
+            <>
+              {columns.map((col) => (
+                <Column
+                  key={col}
+                  columnId={col}
+                  tasks={getTasksByStatus(col)}
+                  onSelectTask={onSelectTask}
+                  onAddTask={handleAddTask}
+                  isActive={columns.indexOf(col) === activeCol}
+                />
+              ))}
+              <button
+                className="flex"
+                onClick={() => {
+                  setShowinput(true);
+                }}
+              >
+                + Add Column
+              </button>
+            </>
+          )}
         </div>
       </DragDropContext>
 
