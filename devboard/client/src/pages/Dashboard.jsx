@@ -32,28 +32,18 @@ const doneCount = tasks.filter((task) => task.status === "done").length;
 const donePercent =
   tasks.length === 0 ? 0 : Math.round((doneCount / tasks.length) * 100);
 
-
-
 useEffect(() => {
-
 document.title = inProgressCount > 0
   ? `(${inProgressCount}) DevBoard`
   : "DevBoard";
-
 }, [inProgressCount]);
 
-
-
-
 const [selectedTask, setSelectedTask] = useState(null);
-
 const [isCreatingFirstTask, setIsCreatingFirstTask] = useState(false);
-
 const [showScrollTop, setShowScrollTop] = useState(false);
-
 const [activeCol, setActiveCol] = useState(0);
-
 const [assigneeFilter, setAssigneeFilter] = useState("all");
+const [filter, setFilter] = useState("all");
 
 const assignees = [
   ...new Set(tasks.map((task) => task.assignee?.name).filter(Boolean)),
@@ -64,38 +54,14 @@ const filteredTasks = tasks.filter(
     assigneeFilter === "all" || task.assignee?.name === assigneeFilter,
 );
 
-
-
-// Scroll To Top Visibility
-
 useEffect(() => {
-
-
 const handleScroll = () => {
-
 setShowScrollTop(window.scrollY > 300);
-
 };
-
-
-
-window.addEventListener(
-"scroll",
-handleScroll
-);
-
-
-
+window.addEventListener("scroll", handleScroll);
 return () => {
-
-window.removeEventListener(
-"scroll",
-handleScroll
-);
-
+window.removeEventListener("scroll", handleScroll);
 };
-
-
 }, []);
 
 useEffect(() => {
@@ -103,38 +69,23 @@ useEffect(() => {
     if (e.key === "ArrowRight") {
       setActiveCol((prev) => Math.min(prev + 1, 3));
     }
-
     if (e.key === "ArrowLeft") {
       setActiveCol((prev) => Math.max(prev - 1, 0));
     }
   };
-
   window.addEventListener("keydown", handler);
-
   return () => {
     window.removeEventListener("keydown", handler);
   };
 }, []);
 
-
-
-
-
-
 if (loading) {
-
 return (
-
 <div className="flex items-center justify-center min-h-screen">
-
 Loading...
-
 </div>
-
 );
-
 }
-
 
 if (error) {
   return (
@@ -154,13 +105,6 @@ logout();
 }
 
 };
-
-
-
-
-
-
-
 
 const handleClearDone = async () => {
 
@@ -184,13 +128,6 @@ doneTasks.map(
 
 };
 
-
-
-
-
-
-
-
 const handleSessionComplete = async () => {
 
 
@@ -210,13 +147,6 @@ pomodoroCount:
 
 
 };
-
-
-
-
-
-
-
 
 return (
 
@@ -319,6 +249,18 @@ className="text-xs bg-purple-600/30 text-purple-300 px-2 py-0.5 rounded-full fle
       {name}
     </option>
   ))}
+</select>
+
+<select
+  value={filter}
+  onChange={(e) => setFilter(e.target.value)}
+  aria-label="Filter tasks by priority"
+  className="bg-[#2a2a2f] text-[#888] text-xs rounded-lg px-2 py-1.5 border border-[#333]"
+>
+  <option value="all">All Priority</option>
+  <option value="high">🔴 High</option>
+  <option value="medium">🟡 Medium</option>
+  <option value="low">🟢 Low</option>
 </select>
 
 
@@ -462,6 +404,7 @@ className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-lg"
 tasks={filteredTasks}
 onSelectTask={setSelectedTask}
 activeCol={activeCol}
+priorityFilter={filter}
 />
 
 
