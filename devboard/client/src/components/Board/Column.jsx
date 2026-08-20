@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import TaskCard from "./TaskCard";
 
@@ -9,11 +9,31 @@ const COLUMN_CONFIG = {
   done:       { label: "Done",        color: "#639922", dot: "bg-green-500" },
 };
 
-const Column = ({ columnId, tasks, onSelectTask, onAddTask }) => {
-  const config = COLUMN_CONFIG[columnId];
+const Column = ({ columnId, tasks, onSelectTask, onAddTask, isActive }) => {
+
+  const [sorted, setSorted] = useState(false);
+
+  const displayTasks = sorted
+    ? [...tasks].sort((a, b) => {
+        const order = { high: 0, medium: 1, low: 2 };
+        return (order[a.priority] ?? 3) - (order[b.priority] ?? 3);
+      })
+    : tasks;
+  const config =
+  COLUMN_CONFIG[columnId] || {
+    label: columnId,
+    dot: "bg-gray-500",
+    color: "#888",
+  };
 
   return (
-    <div className="flex flex-col w-full md:w-56 flex-shrink-0">
+    <div
+  className={`flex flex-col w-full md:w-56 flex-shrink-0 rounded-lg transition-all ${
+    isActive
+      ? "border border-purple-500/60 shadow-[0_0_12px_rgba(139,92,246,0.25)]"
+      : "border border-transparent"
+  }`}
+>
       {/* Header */}
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">
@@ -25,6 +45,14 @@ const Column = ({ columnId, tasks, onSelectTask, onAddTask }) => {
             {tasks.length}
           </span>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setSorted((value) => !value)}
+          className="text-[10px] text-[#555] hover:text-purple-400 transition"
+        >
+          {sorted ? "🔃 sorted" : "🔃 sort"}
+        </button>
       </div>
 
       {/* Droppable cards area */}
@@ -41,7 +69,7 @@ const Column = ({ columnId, tasks, onSelectTask, onAddTask }) => {
                 No tasks here — drag one in or click + Add card
               </div>
             ) : (
-              tasks.map((task, index) => (
+              displayTasks.map((task, index) => (
                 <TaskCard
                   key={task._id}
                   task={task}
