@@ -54,6 +54,17 @@ app.use("/api/tasks", require("./routes/tasks"));
 app.use("/api/github", require("./routes/github"));
 app.use("/api/ai", require("./routes/ai"));
 
+// Health check — no auth required
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    mongodb:
+      mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+  });
+});
+
 app.get("/", (req, res) => res.json({ message: "DevBoard API running 🚀" }));
 
 const onlineSockets = new Set();
