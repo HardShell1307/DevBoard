@@ -6,6 +6,8 @@ const helmet = require("helmet");
 const dotenv = require("dotenv");
 const { rateLimit } = require("express-rate-limit");
 const { Server } = require("socket.io");
+const cookieParser = require("cookie-parser");
+const csrf = require("csurf");
 
 dotenv.config();
 
@@ -45,8 +47,12 @@ app.use(
   }),
 );
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(limiter);
+
+// CSRF protection via csurf middleware (cookie-based)
+app.use(csrf({ cookie: true }));
 
 // Routes
 app.use("/api/auth", require("./routes/auth"));
