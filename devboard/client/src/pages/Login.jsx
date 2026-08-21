@@ -168,6 +168,15 @@ const Login = () => {
             )}
           </button>
 
+          {isRegister && (
+            <p className="text-[10px] text-[#555] text-center leading-snug">
+              By creating an account you agree to our{' '}
+              <a href="#" className="text-purple-400 hover:underline">
+                Terms of Service
+              </a>
+            </p>
+          )}
+
           <button
             type="button"
             onClick={toggleMode}
