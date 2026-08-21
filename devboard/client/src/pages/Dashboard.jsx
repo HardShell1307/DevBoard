@@ -345,7 +345,25 @@ onSessionComplete={handleSessionComplete}
 
 
 
-{/* Board */}
+{/* Priority Breakdown Summary */}
+      {tasks.length > 0 && (() => {
+        const high = filteredTasks.filter(t => t.priority === 'high').length;
+        const medium = filteredTasks.filter(t => t.priority === 'medium').length;
+        const low = filteredTasks.filter(t => t.priority === 'low').length;
+        return (
+          <div
+            className="flex items-center gap-4 px-4 py-2 text-sm"
+            style={{ background: '#1e1e22', borderBottom: '1px solid #2a2a2f' }}
+          >
+            <span style={{ color: '#a0a0a5' }}>📊 Priority:</span>
+            <span style={{ color: '#f87171' }}>🔴 {high} high</span>
+            <span style={{ color: '#facc15' }}>🟡 {medium} medium</span>
+            <span style={{ color: '#4ade80' }}>🟢 {low} low</span>
+          </div>
+        );
+      })()}
+
+      {/* Board */}
 
 <div className="flex-1 overflow-hidden">
 
