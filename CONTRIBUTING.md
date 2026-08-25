@@ -82,7 +82,7 @@ If you're on Windows, use Git Bash or WSL for the best experience.
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/devboard.git
-cd devboard
+cd devboard/devboard
 ```
 
 ### Install dependencies
@@ -94,7 +94,7 @@ npm run install:all
 ### Copy environment file
 
 ```bash
-cp .env.example server/.env
+cp server/.env.example server/.env
 ```
 
 ### Run
