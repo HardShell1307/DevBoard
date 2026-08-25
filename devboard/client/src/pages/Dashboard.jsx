@@ -33,6 +33,14 @@ const Dashboard = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [isCreatingFirstTask, setIsCreatingFirstTask] = useState(false);
   const [showTop, setShowTop] = useState(false);
+  const [searchHistory, setSearchHistory] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("search_history") || "[]");
+      return Array.isArray(saved) ? saved : [];
+    } catch {
+      return [];
+    }
+  });
 
   useEffect(() => {
     const handleScroll = (event) => {
@@ -87,6 +95,21 @@ const Dashboard = () => {
     }
   };
 
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    const trimmed = query.trim();
+    if (!trimmed) return;
+
+    const updated = [
+      trimmed,
+      ...searchHistory.filter(
+        (h) => h.toLowerCase() !== trimmed.toLowerCase(),
+      ),
+    ].slice(0, 5);
+    setSearchHistory(updated);
+    localStorage.setItem("search_history", JSON.stringify(updated));
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[var(--bg-primary)]">
       {/* Top Navbar */}
@@ -117,10 +140,28 @@ const Dashboard = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearch(searchQuery);
+              }}
+              onBlur={() => handleSearch(searchQuery)}
               placeholder="Search tasks by title or tag..."
               className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl px-4 py-2.5 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/15 transition"
             />
           </label>
+          {searchHistory.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {searchHistory.map((h) => (
+                <button
+                  key={h}
+                  type="button"
+                  onClick={() => handleSearch(h)}
+                  className="text-[10px] text-[#555] hover:text-purple-400 px-2 py-0.5 bg-[#2a2a2f] rounded-full transition"
+                >
+                  🕐 {h}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <a
