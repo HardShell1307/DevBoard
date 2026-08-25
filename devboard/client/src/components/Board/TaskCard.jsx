@@ -130,7 +130,7 @@ const TaskCard = ({ task, index, onSelect }) => {
               ? { borderLeft: `3px solid ${task.labelColor}` }
               : {}),
           }}
-          className={`group bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
+          className={`card group bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
             hover:shadow-lg ${GLOW[task.priority] || "hover:shadow-purple-500/20"}
             ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : isOverdue
               ? "border-red-500 border-l-4 hover:border-red-400" : "border-[var(--border-primary)] hover:border-[#444]"}`}
