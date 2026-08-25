@@ -110,6 +110,10 @@ const Dashboard = () => {
     localStorage.setItem("search_history", JSON.stringify(updated));
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[var(--bg-primary)]">
       {/* Top Navbar */}
@@ -134,7 +138,7 @@ const Dashboard = () => {
             </button>
           )}
         </div>
-        <div className="flex-1 w-full max-w-xl md:px-6">
+        <div className="flex-1 w-full max-w-xl md:px-6 no-print">
           <label className="relative block">
             <input
               type="text"
@@ -163,7 +167,14 @@ const Dashboard = () => {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 no-print">
+          <button
+            type="button"
+            onClick={handlePrint}
+            className="text-xs text-[#666] hover:text-white transition px-3 py-1.5 border border-[#2a2a2f] rounded-lg"
+          >
+            🖨️ Print
+          </button>
           <a
             href="https://github.com/anoopcodehack/DevBoard"
             target="_blank"
@@ -191,13 +202,17 @@ const Dashboard = () => {
       </div>
 
       {/* Activity Heatmap */}
-      <Heatmap />
+      <div className="no-print">
+        <Heatmap />
+      </div>
 
       {/* Pomodoro Bar */}
-      <PomodoroTimer
-        activeTaskTitle={selectedTask?.title}
-        onSessionComplete={handleSessionComplete}
-      />
+      <div className="no-print">
+        <PomodoroTimer
+          activeTaskTitle={selectedTask?.title}
+          onSessionComplete={handleSessionComplete}
+        />
+      </div>
       {/* Kanban Board */}
       <div className="flex-1 overflow-hidden">
         {tasks.length === 0 ? (
@@ -257,7 +272,7 @@ const Dashboard = () => {
               container.scrollTo({ top: 0, behavior: "smooth" });
             });
           }}
-          className="fixed bottom-6 right-6 bg-purple-600 hover:bg-purple-500 text-white rounded-full w-10 h-10 text-lg shadow-lg transition z-50 flex items-center justify-center"
+          className="no-print fixed bottom-6 right-6 bg-purple-600 hover:bg-purple-500 text-white rounded-full w-10 h-10 text-lg shadow-lg transition z-50 flex items-center justify-center"
           aria-label="Scroll to top"
         >
           ⬆️
