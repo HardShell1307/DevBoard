@@ -71,6 +71,7 @@ const TaskCard = ({ task, index, onSelect }) => {
         description: task.description,
         status: task.status,
         priority: task.priority,
+        labelColor: task.labelColor,
         tags: task.tags,
         snippets: task.snippets?.map(({ language, code }) => ({
           language,
@@ -123,6 +124,12 @@ const TaskCard = ({ task, index, onSelect }) => {
           {...provided.dragHandleProps}
           onClick={() => onSelect(task)}
           onContextMenu={handleContextMenu}
+          style={{
+            ...provided.draggableProps.style,
+            ...(task.labelColor
+              ? { borderLeft: `3px solid ${task.labelColor}` }
+              : {}),
+          }}
           className={`group bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
             hover:shadow-lg ${GLOW[task.priority] || "hover:shadow-purple-500/20"}
             ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : isOverdue

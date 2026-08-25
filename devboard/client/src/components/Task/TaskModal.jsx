@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useBoard } from "../../context/BoardContext";
 
+const COLORS = [
+  "#7F77DD",
+  "#E85D75",
+  "#27AE60",
+  "#F39C12",
+  "#2980B9",
+  "#E74C3C",
+  "",
+];
+
 const TaskModal = ({
   task,
   mode = "create",
@@ -14,6 +24,7 @@ const TaskModal = ({
     description: task?.description || "",
     status: task?.status || defaultStatus,
     priority: task?.priority || "medium",
+    labelColor: task?.labelColor || "",
     tags: task?.tags?.join(", ") || "",
     githubIssueUrl: task?.githubIssueUrl || "",
     githubIssueNumber: task?.githubIssueNumber || "",
@@ -219,6 +230,26 @@ const TaskModal = ({
               <option value="medium">Medium Priority</option>
               <option value="high">High Priority</option>
             </select>
+          </div>
+
+          <div>
+            <label className="text-xs text-[#888] mb-1.5 block">Label color</label>
+            <div className="flex items-center gap-2">
+              {COLORS.map((color) => (
+                <button
+                  key={color || "none"}
+                  type="button"
+                  title={color || "No color"}
+                  onClick={() => setForm({ ...form, labelColor: color })}
+                  style={{ background: color || "transparent" }}
+                  className={`w-5 h-5 rounded-full border-2 ${
+                    form.labelColor === color
+                      ? "border-white"
+                      : "border-[#444]"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
 
           <input
