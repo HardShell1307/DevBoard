@@ -19,6 +19,7 @@ const taskSchema = new mongoose.Schema(
       enum: ["low", "medium", "high"],
       default: "medium",
     },
+    labelColor: { type: String, default: "" },
     tags: [{ type: String }],
     snippets: [snippetSchema],
     githubIssueUrl: { type: String, default: "" },
