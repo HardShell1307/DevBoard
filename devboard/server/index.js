@@ -64,12 +64,18 @@ app.use("/api/ai", require("./routes/ai"));
 
 // Health check — no auth required
 app.get("/api/health", (req, res) => {
+  const mem = process.memoryUsage();
   res.json({
     status: "ok",
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
     mongodb:
       mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+    memory: {
+      heapUsed: `${Math.round(mem.heapUsed / 1024 / 1024)}MB`,
+      heapTotal: `${Math.round(mem.heapTotal / 1024 / 1024)}MB`,
+      rss: `${Math.round(mem.rss / 1024 / 1024)}MB`,
+    },
   });
 });
 
