@@ -30,6 +30,7 @@ const Dashboard = () => {
   useEffect(() => {
     document.title = "Dashboard — DevBoard";
   }, []);
+  const [showHelp, setShowHelp] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isCreatingFirstTask, setIsCreatingFirstTask] = useState(false);
   const [showTop, setShowTop] = useState(false);
@@ -185,6 +186,14 @@ const Dashboard = () => {
             onClick={handleLogout}
             className="text-xs text-[#666] hover:text-[#aaa] transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg"
           >
+            <button
+              onClick={() => setShowHelp((v) => !v)}
+              aria-label="Keyboard shortcuts help"
+              title="Keyboard shortcuts (?)"
+              className="text-xs text-[#666] hover:text-[#aaa] px-2 py-1 border border-[#2a2a2f] rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition"
+            >
+              ⌨️ ?
+            </button>
             Logout
           </button>
         </div>
@@ -262,6 +271,24 @@ const Dashboard = () => {
         >
           ⬆️
         </button>
+      )}
+      {showHelp && (
+        <div
+          className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowHelp(false); }}
+        >
+          <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl w-full max-w-sm shadow-2xl">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-primary)]">
+              <h2 className="font-semibold text-[#f0f0f0] text-sm">Keyboard Shortcuts</h2>
+              <button onClick={() => setShowHelp(false)} className="text-[#666] hover:text-[#aaa] text-xl leading-none" aria-label="Close">✕</button>
+            </div>
+            <div className="p-5 flex flex-col gap-3 text-sm">
+              <div className="flex items-center justify-between"><span className="text-[#a0a0a5]">New task</span><kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[#f0f0f0]">N</kbd></div>
+              <div className="flex items-center justify-between"><span className="text-[#a0a0a5]">Close modal</span><kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[#f0f0f0]">ESC</kbd></div>
+              <div className="flex items-center justify-between"><span className="text-[#a0a0a5]">Toggle this menu</span><kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[#f0f0f0]">?</kbd></div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
