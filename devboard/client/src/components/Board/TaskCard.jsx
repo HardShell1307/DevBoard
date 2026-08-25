@@ -240,6 +240,10 @@ const TaskCard = ({ task, index, onSelect }) => {
                     </button>
                   </div>
 
+                  <div className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--border-primary)] text-[#888] border border-[var(--border-primary)] w-fit mb-1.5">
+                    {task.snippets[selectedSnippet].language || "javascript"}
+                  </div>
+
                   <SyntaxHighlighter
                     language={
                       task.snippets[selectedSnippet].language || "javascript"
