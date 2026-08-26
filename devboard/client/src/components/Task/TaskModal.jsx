@@ -425,6 +425,19 @@ const TaskModal = ({
             onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
             className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] focus:outline-none focus:border-purple-500"
           />
+          
+          <select
+            value={form.estimate || ''}
+            onChange={(e) => setForm({ ...form, estimate: e.target.value })}
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] focus:outline-none focus:border-purple-500"
+          >
+            <option value="">No estimate</option>
+            <option value="30m">30 minutes</option>
+            <option value="1h">1 hour</option>
+            <option value="2h">2 hours</option>
+            <option value="4h">4 hours</option>
+            <option value="1d">1 day</option>
+          </select>
         </div>
 
         <div className="flex items-center justify-between gap-2 px-5 py-4 border-t border-[var(--border-primary)]">
