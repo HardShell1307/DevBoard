@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { vscDarkPlus, vs } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useBoard } from "../../context/BoardContext";
 import { useSuggestTags } from "../../hooks/useSuggestTags";
 
@@ -48,6 +48,9 @@ const TaskCard = ({ task, index, onSelect }) => {
   const cardRef = useRef(null);
   const { activeTag, setActiveTag, updateTask, deleteTask, addTask } = useBoard();
   const { suggestedTags, loadingTags, handleSuggestTags, handleAddTag } = useSuggestTags(task, selectedSnippet, updateTask);
+
+  // TODO: connect isDark to ThemeContext when light mode is implemented
+  const isDark = true;
 
   const handleCopy = (e) => {
     e.stopPropagation();
@@ -248,7 +251,7 @@ const TaskCard = ({ task, index, onSelect }) => {
                     language={
                       task.snippets[selectedSnippet].language || "javascript"
                     }
-                    style={vscDarkPlus}
+                    style={isDark ? vscDarkPlus : vs}
                     customStyle={{
                       fontSize: 10,
                       borderRadius: 6,
