@@ -189,6 +189,7 @@ const TaskModal = ({
 
         <div className="p-5 flex flex-col gap-3 max-h-[70vh] overflow-y-auto">
           <input
+            autoFocus
             type="text"
             placeholder="Task title *"
             maxLength={100}
