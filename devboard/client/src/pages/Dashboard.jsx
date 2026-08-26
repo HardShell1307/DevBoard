@@ -115,6 +115,14 @@ const Dashboard = () => {
     window.print();
   };
 
+  const getGreeting = () => {
+  const hour = new Date().getHours();
+
+  if (hour < 12) return "🌅 Good morning";
+  if (hour < 17) return "🌞 Good afternoon";
+  return "🌙 Good evening";
+ };
+
   return (
     <div className="flex flex-col h-screen bg-[var(--bg-primary)]">
       {/* Top Navbar */}
@@ -186,7 +194,7 @@ const Dashboard = () => {
               ? `⭐ ${formatStars(stars)} Star on GitHub`
               : "⭐ Star on GitHub"}
           </a>
-          <span className="text-xs text-[#666]">👋 {user?.name}</span>
+          <span className="text-xs text-[#666]">👋 {getGreeting()},{user?.name}</span>
           <button
             onClick={handleClearDone}
             className="text-xs text-[#666] hover:text-red-400 transition px-3 py-1.5 border border-[#2a2a2f] rounded-lg"
