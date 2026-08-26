@@ -157,6 +157,17 @@ const TaskModal = ({
     }
   };
 
+  const timeAgo = (date) => {
+  const diff = Date.now() - new Date(date);
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${days}d ago`;
+};
+
   return (
     <div
       className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -317,6 +328,22 @@ const TaskModal = ({
               </button>
             </div>
           ))}
+
+           {/* Activity Log */}
+          {task?.activity?.length > 0 && (
+            <div className="border border-[var(--border-primary)] rounded-lg px-3 py-2">
+              <span className="text-xs text-[#888] block mb-1.5">📜 Recent activity</span>
+              <ul className="flex flex-col gap-1">
+                {task.activity.slice(-3).reverse().map((a, i) => (
+                  <li key={i} className="text-xs text-[#a0a0a0] flex justify-between">
+                    <span>{a.action}</span>
+                    <span className="text-[#666]">{timeAgo(a.timestamp)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
 
           {/* Add Code Snippet */}
           <div className="border border-[var(--border-primary)] rounded-lg overflow-hidden">
