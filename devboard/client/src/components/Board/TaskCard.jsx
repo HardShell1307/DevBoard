@@ -29,6 +29,32 @@ const TAG_COLORS = [
 const getTagColor = (tag) =>
   TAG_COLORS[tag.charCodeAt(0) % TAG_COLORS.length];
 
+// Search terms are raw user input, so they have to be escaped before they can
+// be used as a pattern — searching for "(" would otherwise throw.
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// Wrap every occurrence of the active search term in a <mark> so it is visible
+// on the card itself why it survived the filter.
+const highlightMatch = (text, query) => {
+  const term = query?.trim();
+  if (!term || !text) return text;
+
+  const parts = String(text).split(new RegExp(`(${escapeRegExp(term)})`, "gi"));
+
+  return parts.map((part, i) =>
+    part.toLowerCase() === term.toLowerCase() ? (
+      <mark
+        key={i}
+        className="bg-purple-500/30 text-purple-300 rounded px-0.5"
+      >
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  );
+};
+
 const timeAgo = (date) => {
   const diff = Date.now() - new Date(date);
   const mins = Math.floor(diff / 60000);
@@ -46,7 +72,7 @@ const TaskCard = ({ task, index, onSelect }) => {
   const [copied, setCopied] = useState(false);
   const [contextMenu, setContextMenu] = useState(null);
   const cardRef = useRef(null);
-  const { activeTag, setActiveTag, updateTask, deleteTask, addTask } = useBoard();
+  const { activeTag, setActiveTag, updateTask, deleteTask, addTask, searchQuery } = useBoard();
   const { suggestedTags, loadingTags, handleSuggestTags, handleAddTag } = useSuggestTags(task, selectedSnippet, updateTask);
 
   // TODO: connect isDark to ThemeContext when light mode is implemented
@@ -141,7 +167,7 @@ const TaskCard = ({ task, index, onSelect }) => {
           {/* Title */}
           <div className="flex items-start justify-between gap-2 mb-2">
             <p className="text-sm font-medium text-[#f0f0f0] leading-snug">
-              {task.title}
+              {highlightMatch(task.title, searchQuery)}
             </p>
 
             <button
@@ -291,7 +317,10 @@ const TaskCard = ({ task, index, onSelect }) => {
                       : "hover:brightness-125"
                     }`}
                 >
-                  {t.length > 15 ? t.slice(0, 15) + "..." : t}
+                  {highlightMatch(
+                    t.length > 15 ? t.slice(0, 15) + "..." : t,
+                    searchQuery
+                  )}
                 </span>
               );
             })}
