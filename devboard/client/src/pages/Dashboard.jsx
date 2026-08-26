@@ -34,6 +34,7 @@ const Dashboard = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [isCreatingFirstTask, setIsCreatingFirstTask] = useState(false);
   const [showTop, setShowTop] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [searchHistory, setSearchHistory] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("search_history") || "[]");
@@ -57,6 +58,28 @@ const Dashboard = () => {
     window.addEventListener("scroll", handleScroll, true);
     return () => window.removeEventListener("scroll", handleScroll, true);
   }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const handleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (error) {
+      console.warn("Unable to toggle fullscreen mode:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -194,6 +217,16 @@ const Dashboard = () => {
               ? `⭐ ${formatStars(stars)} Star on GitHub`
               : "⭐ Star on GitHub"}
           </a>
+          <span className="text-xs text-[#666]">👋 {user?.name}</span>
+          {document.fullscreenEnabled && (
+            <button
+              onClick={handleFullscreen}
+              aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+              className="text-xs text-[#666] hover:text-red-400 transition px-3 py-1.5 border border-[#2a2a2f] rounded-lg"
+            >
+              {isFullscreen ? "⊠ Exit" : "⛶ Focus"}
+            </button>
+          )}
           <span className="text-xs text-[#666]">👋 {getGreeting()},{user?.name}</span>
           <button
             onClick={handleClearDone}
