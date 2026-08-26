@@ -8,7 +8,7 @@ import confetti from "canvas-confetti";
 const COLUMNS = ["backlog", "inprogress", "review", "done"];
 
 
-const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFilter }) => {
+const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFilter = "all" }) => {
 
   const { tasks, updateTask, addTask } = useBoard();
   const displayedTasks = filteredTasks ?? tasks;

@@ -39,6 +39,7 @@ const TaskModal = ({
   const [snippetLang, setSnippetLang] = useState("javascript");
   const [loading, setLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [exported, setExported] = useState(false);
 
   // AI Loading & Error States
   const [isGenerating, setIsGenerating] = useState(false);
@@ -47,13 +48,13 @@ const TaskModal = ({
 
   useEffect(() => {
     const handleKey = (e) => {
-      if(e.key === 'Escape') {
+      if (e.key === "Escape") {
         onClose();
       }
-    }
+    };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [])
+  }, []);
 
   const handleGenerateAI = async () => {
     if (!form.title.trim()) {
@@ -93,6 +94,25 @@ const TaskModal = ({
   const handleDeleteSnippet = async (indexToRemove) => {
     const updatedSnippets = task.snippets.filter((_, i) => i !== indexToRemove);
     await updateTask(task._id, { snippets: updatedSnippets });
+  };
+
+  const handleExportJSON = () => {
+    const data = JSON.stringify(
+      {
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+        tags: task.tags,
+        snippets: task.snippets,
+        createdAt: task.createdAt,
+      },
+      null,
+      2,
+    );
+    navigator.clipboard.writeText(data);
+    setExported(true);
+    setTimeout(() => setExported(false), 2000);
   };
 
   useEffect(() => {
@@ -204,9 +224,7 @@ const TaskModal = ({
                 : ""}
             </p>
 
-            {aiError && (
-              <p className="text-xs text-red-400 mt-1">{aiError}</p>
-            )}
+            {aiError && <p className="text-xs text-red-400 mt-1">{aiError}</p>}
           </div>
 
           <div className="flex gap-2">
@@ -233,7 +251,9 @@ const TaskModal = ({
           </div>
 
           <div>
-            <label className="text-xs text-[#888] mb-1.5 block">Label color</label>
+            <label className="text-xs text-[#888] mb-1.5 block">
+              Label color
+            </label>
             <div className="flex items-center gap-2">
               {COLORS.map((color) => (
                 <button
@@ -243,9 +263,7 @@ const TaskModal = ({
                   onClick={() => setForm({ ...form, labelColor: color })}
                   style={{ background: color || "transparent" }}
                   className={`w-5 h-5 rounded-full border-2 ${
-                    form.labelColor === color
-                      ? "border-white"
-                      : "border-[#444]"
+                    form.labelColor === color ? "border-white" : "border-[#444]"
                   }`}
                 />
               ))}
@@ -284,8 +302,13 @@ const TaskModal = ({
 
           {/* Existing Snippets */}
           {task?.snippets?.map((snippet, index) => (
-            <div key={index} className="flex items-center justify-between bg-[#0f0f10] rounded-lg px-3 py-2 mb-2">
-              <span className="text-xs font-mono text-[#888]">{snippet.language} snippet</span>
+            <div
+              key={index}
+              className="flex items-center justify-between bg-[#0f0f10] rounded-lg px-3 py-2 mb-2"
+            >
+              <span className="text-xs font-mono text-[#888]">
+                {snippet.language} snippet
+              </span>
               <button
                 onClick={() => handleDeleteSnippet(index)}
                 className="text-red-400 hover:text-red-300 text-xs"
@@ -343,6 +366,15 @@ const TaskModal = ({
           >
             Cancel
           </button>
+          {task && (
+            <button
+              onClick={handleExportJSON}
+              className="px-4 py-2 text-sm text-[#888] hover:text-[#aaa] transition"
+            >
+              {exported ? "✅ Copied!" : "📤 Export JSON"}
+            </button>
+          )}
+
           {confirmDelete ? (
             <div className="flex items-center gap-2">
               <span className="text-xs text-[#888]">You sure? 👀</span>
@@ -387,8 +419,12 @@ const TaskModal = ({
       {confirmClose && (
         <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl p-6 max-w-sm shadow-2xl">
-            <h3 className="text-lg font-semibold text-[#f0f0f0] mb-2">Unsaved Changes</h3>
-            <p className="text-sm text-[#888] mb-4">You have unsaved changes. Are you sure you want to discard them?</p>
+            <h3 className="text-lg font-semibold text-[#f0f0f0] mb-2">
+              Unsaved Changes
+            </h3>
+            <p className="text-sm text-[#888] mb-4">
+              You have unsaved changes. Are you sure you want to discard them?
+            </p>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmClose(false)}
