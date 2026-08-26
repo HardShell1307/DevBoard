@@ -99,6 +99,11 @@ export const BoardProvider = ({ children }) => {
       setAllTasks((prev) => [...prev, data]);
     } catch (err) {
       console.error("addTask failed", err);
+      if (err.response?.status === 429) {
+        setError('Too many requests — slow down a bit! 🚦');
+      } else {
+        setError('Failed to add task. Try again!');
+      }
       throw err;
     }
   };
@@ -206,7 +211,8 @@ export const BoardProvider = ({ children }) => {
         login,
         logout,
         fetchTasks,
-        error
+        error,
+        setError
       }}
     >
       {children}
