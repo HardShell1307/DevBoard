@@ -191,6 +191,7 @@ export const BoardProvider = ({ children }) => {
     <BoardContext.Provider
       value={{
         tasks,
+        allTasks,
         loading,
         user,
         onlineUsers,

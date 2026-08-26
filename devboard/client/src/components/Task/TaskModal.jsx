@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import { useBoard } from "../../context/BoardContext";
 
 const COLORS = [
@@ -39,7 +40,6 @@ const TaskModal = ({
   const [snippetLang, setSnippetLang] = useState("javascript");
   const [loading, setLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [exported, setExported] = useState(false);
 
   // AI Loading & Error States
   const [isGenerating, setIsGenerating] = useState(false);
@@ -111,8 +111,7 @@ const TaskModal = ({
       2,
     );
     navigator.clipboard.writeText(data);
-    setExported(true);
-    setTimeout(() => setExported(false), 2000);
+    toast.success("Task JSON copied to clipboard");
   };
 
   useEffect(() => {
@@ -359,37 +358,55 @@ const TaskModal = ({
           />
         </div>
 
-        <div className="flex justify-end gap-2 px-5 py-4 border-t border-[var(--border-primary)]">
+        <div className="flex items-center justify-between gap-2 px-5 py-4 border-t border-[var(--border-primary)]">
+          <div className="flex items-center gap-1">
+            {task && (
+              <button
+                onClick={handleExportJSON}
+                title="Export as JSON"
+                className="p-2 text-sm text-[#888] hover:text-[#aaa] hover:bg-white/5 rounded-lg transition outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
+              >
+                📤
+              </button>
+            )}
+            {task && (
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    `${window.location.origin}/task/${task._id}`,
+                  );
+                  toast.success("Share link copied to clipboard");
+                }}
+                title="Copy share link"
+                className="p-2 text-sm text-[#888] hover:text-[#aaa] hover:bg-white/5 rounded-lg transition outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
+              >
+                🔗
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center flex-wrap justify-end gap-2">
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-sm text-[#888] hover:text-[#aaa] transition"
+            className="shrink-0 whitespace-nowrap px-4 py-2 text-sm text-[#888] hover:text-[#aaa] transition"
           >
             Cancel
           </button>
-          {task && (
-            <button
-              onClick={handleExportJSON}
-              className="px-4 py-2 text-sm text-[#888] hover:text-[#aaa] transition"
-            >
-              {exported ? "✅ Copied!" : "📤 Export JSON"}
-            </button>
-          )}
-
           {confirmDelete ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-[#888]">You sure? 👀</span>
+            <div className="shrink-0 flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-lg pl-3 pr-1.5 py-1.5">
+              <span className="text-xs text-[#aaa] whitespace-nowrap">You sure? 👀</span>
               <button
                 onClick={async () => {
                   await deleteTask(task._id);
                   onClose();
                 }}
-                className="text-xs text-red-400 font-bold hover:text-red-300"
+                className="text-xs font-bold text-red-400 hover:text-white hover:bg-red-500 px-2 py-1 rounded-md transition whitespace-nowrap"
               >
                 yes slay 💀
               </button>
               <button
                 onClick={() => setConfirmDelete(false)}
-                className="text-xs text-[#888] hover:text-[#aaa]"
+                className="text-xs text-[#888] hover:text-[#aaa] hover:bg-white/5 px-2 py-1 rounded-md transition whitespace-nowrap"
               >
                 nvm
               </button>
@@ -397,7 +414,7 @@ const TaskModal = ({
           ) : (
             <button
               onClick={() => setConfirmDelete(true)}
-              className="px-4 py-2 text-sm text-red-400 hover:text-red-300 transition"
+              className="shrink-0 whitespace-nowrap px-4 py-2 text-sm text-red-400 hover:text-red-300 transition"
             >
               Delete
             </button>
@@ -405,7 +422,7 @@ const TaskModal = ({
           <button
             onClick={handleSave}
             disabled={loading || !form.title.trim()}
-            className="px-5 py-2 text-sm bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-medium transition disabled:opacity-40"
+            className="shrink-0 whitespace-nowrap px-5 py-2 text-sm bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-medium transition disabled:opacity-40"
           >
             {loading
               ? "Saving..."
@@ -413,6 +430,7 @@ const TaskModal = ({
                 ? "Create Task"
                 : "Save Changes"}
           </button>
+          </div>
         </div>
       </div>
 
