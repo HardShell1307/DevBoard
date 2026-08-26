@@ -343,6 +343,11 @@ const TaskCard = ({ task, index, onSelect }) => {
               )}
             </div>
           )}
+          {task.estimate && (
+            <div className="mt-1 text-[10px] flex items-center gap-1.5 text-[#888]">
+              <span>⏱️ {task.estimate}</span>
+            </div>
+          )}
 
           {/* Footer */}
           <div className="flex items-center justify-between mt-2">

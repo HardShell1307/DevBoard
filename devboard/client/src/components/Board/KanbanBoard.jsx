@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import Column from "./Column";
 import TaskModal from "../Task/TaskModal";
@@ -22,6 +22,14 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFi
   const [showinput, setShowinput] = useState(false);
   const [columnName, setColumnName] = useState("");
 
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (showinput) {
+      inputRef.current?.focus();
+    }
+  }, [showinput]);
+  
   useEffect(() => {
     const handler = (e) => {
       if (e.key.toLowerCase() === "n" && !e.target.matches("input, textarea")) {
@@ -29,12 +37,8 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFi
         setModalOpen(true);
       }
     };
-
     window.addEventListener("keydown", handler);
-
-    return () => {
-      window.removeEventListener("keydown", handler);
-    };
+    return () => window.removeEventListener("keydown", handler);
   }, []);
 
   const getTasksByStatus = (status) =>
@@ -137,17 +141,7 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFi
   };
 
   const handleSubmit = () => {
-
-    if (!columnName.trim()) {
-      console.log("Empty column name!");
-      return;
-    }
-
-    setColumns((prev) => {
-      const updated = [...prev, columnName];
-      return updated;
-    });
-
+    setColumns((prev) => [...prev, columnName]);
     setColumnName("");
     setShowinput(false);
   };
@@ -164,20 +158,38 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFi
   return (
     <>
       {showinput && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-          <div className="flex flex-col bg-white rounded-lg p-6 w-96 shadow-xl">
+        <div
+          className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center"
+          onClick={handleCancel}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') handleCancel();
+            if (e.key === 'Enter' && columnName.trim()) handleSubmit();
+          }}
+        >
+          <div
+            className="flex flex-col bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-lg p-6 w-96 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <input
+              ref={inputRef}
               type="text"
               placeholder="Enter column name"
               value={columnName}
               onChange={(e) => setColumnName(e.target.value)}
-              className="border rounded px-2 py-1 placeholder-gray-300 text-gray-950"
+              className="border border-[var(--border-primary)] rounded px-2 py-1 bg-[var(--bg-input)] text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:border-purple-500 focus:outline-none"
             />
-            <div className="flex justify-between">
-              <button onClick={handleCancel} className="p-4 text-red-600">
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              >
                 Cancel
               </button>
-              <button onClick={handleSubmit} className="p-4 text-green-600">
+              <button
+                onClick={handleSubmit}
+                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                disabled={!columnName.trim()}
+              >
                 Add
               </button>
             </div>

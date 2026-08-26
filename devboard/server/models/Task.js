@@ -29,6 +29,7 @@ const taskSchema = new mongoose.Schema(
     pomodoroCount: { type: Number, default: 0 },
     order: { type: Number, default: 0 },
     project: { type: mongoose.Schema.Types.ObjectId, ref: "Project" },
+    estimate: { type: String, default: '' },
     activity: [
       {
         action: String,
