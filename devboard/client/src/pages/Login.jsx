@@ -6,6 +6,7 @@ import { useBoard } from "../context/BoardContext";
 const Login = () => {
   const { login } = useBoard();
   const navigate = useNavigate(); // <-- 2. Initialize navigate hook
+  const [fade, setFade] = useState(true);
 
   useEffect(() => {
     document.title = "Login — DevBoard";
@@ -25,7 +26,7 @@ const Login = () => {
     if (!form.email.includes("@")) return setError("Enter a valid email");
     if (form.password.length < 6)
       return setError("Password must be at least 6 characters");
-    
+
     if (!form.email || !form.password || (isRegister && !form.name)) {
       setError("Please fill in all required fields");
       return;
@@ -74,8 +75,12 @@ const Login = () => {
   };
 
   const toggleMode = () => {
-    setIsRegister((prev) => !prev);
-    setError("");
+    setFade(false);
+    setTimeout(() => {
+      setIsRegister((prev) => !prev);
+      setError("");
+      setFade(true);
+    }, 150);
   };
 
   return (
@@ -90,7 +95,11 @@ const Login = () => {
           </p>
         </div>
 
-        <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl p-6 flex flex-col gap-3">
+        <div
+          className={`bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl p-6 flex flex-col gap-3 transition-opacity duration-150 ${
+            fade ? "opacity-100" : "opacity-0"
+          }`}
+        >
           {isRegister && (
             <input
               type="text"
@@ -170,7 +179,7 @@ const Login = () => {
 
           {isRegister && (
             <p className="text-[10px] text-[#555] text-center leading-snug">
-              By creating an account you agree to our{' '}
+              By creating an account you agree to our{" "}
               <a href="#" className="text-purple-400 hover:underline">
                 Terms of Service
               </a>
