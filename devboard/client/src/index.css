@@ -25,6 +25,16 @@ body {
 ::-webkit-scrollbar-track { background: var(--bg-card); }
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
 
+.board-bg {
+  background-color: #0f0f10;
+  background-image: radial-gradient(
+    circle,
+    #2a2a2f 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+}
+
 @media print {
   .no-print {
     display: none !important;

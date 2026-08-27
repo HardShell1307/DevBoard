@@ -198,7 +198,7 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFi
       )}
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="board flex flex-col md:flex-row gap-4 p-4 overflow-x-hidden md:overflow-x-auto overflow-y-auto h-full">
+        <div className="board board-bg flex flex-col md:flex-row gap-4 p-4 overflow-x-hidden md:overflow-x-auto overflow-y-auto h-full">
           {isEmpty ? (
             <div className="flex flex-col items-center justify-center w-full h-64 text-gray-500">
               <span className="text-4xl mb-4">🔍</span>
