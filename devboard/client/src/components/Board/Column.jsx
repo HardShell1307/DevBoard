@@ -2,6 +2,19 @@ import React, { useEffect, useState } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import TaskCard from "./TaskCard";
 
+// Collapse state is per column and purely local — no backend involved.
+const collapsedKey = (columnId) => `column_collapsed_${columnId}`;
+
+const readCollapsed = (columnId) => {
+  try {
+    return localStorage.getItem(collapsedKey(columnId)) === "true";
+  } catch {
+    // Storage can be unavailable (private mode, blocked cookies) — the column
+    // simply starts expanded then.
+    return false;
+  }
+};
+
 const COLUMN_CONFIG = {
   backlog: { label: "Backlog", color: "#888", dot: "bg-gray-500" },
   inprogress: { label: "In Progress", color: "#7F77DD", dot: "bg-purple-500", },
@@ -18,6 +31,15 @@ const Column = ({
 }) => {
   const [sorted, setSorted] = useState(false);
   const [animate, setAnimate] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => readCollapsed(columnId));
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(collapsedKey(columnId), String(collapsed));
+    } catch {
+      // Not being able to remember it is not worth breaking the board over.
+    }
+  }, [collapsed, columnId]);
 
   useEffect(() => {
     setAnimate(true);
@@ -52,6 +74,16 @@ const Column = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setCollapsed((value) => !value)}
+            aria-expanded={!collapsed}
+            title={collapsed ? "Expand column" : "Collapse column"}
+            className="text-[10px] text-[#555] hover:text-purple-400 transition"
+          >
+            {collapsed ? "▶" : "▼"}
+          </button>
+
           <span className={`w-2 h-2 rounded-full ${config.dot}`} />
 
           <span className="text-xs font-semibold uppercase tracking-wider text-[#888]">
@@ -66,13 +98,15 @@ const Column = ({
           </span>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setSorted((value) => !value)}
-          className="text-[10px] text-[#555] hover:text-purple-400 transition"
-        >
-          {sorted ? "🔃 sorted" : "🔃 sort"}
-        </button>
+        {!collapsed && (
+          <button
+            type="button"
+            onClick={() => setSorted((value) => !value)}
+            className="text-[10px] text-[#555] hover:text-purple-400 transition"
+          >
+            {sorted ? "🔃 sorted" : "🔃 sort"}
+          </button>
+        )}
       </div>
 
       {/* Droppable cards area */}
@@ -81,10 +115,15 @@ const Column = ({
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`flex flex-col gap-2 flex-1 min-h-[80px] rounded-lg p-1 transition-colors
+            className={`flex flex-col gap-2 rounded-lg p-1 transition-colors
+              ${collapsed ? "min-h-[40px]" : "flex-1 min-h-[80px]"}
               ${snapshot.isDraggingOver ? "bg-purple-500/5" : ""}`}
           >
-            {tasks.length === 0 ? (
+            {collapsed ? (
+              <div className="flex items-center justify-center text-center p-2 text-xs text-[#666] border border-dashed border-[var(--border-primary)] rounded-md">
+                {tasks.length === 1 ? "1 task hidden" : `${tasks.length} tasks hidden`}
+              </div>
+            ) : tasks.length === 0 ? (
               <div className="flex items-center justify-center text-center p-3 text-xs text-[#666] border border-dashed border-[var(--border-primary)] rounded-md my-auto">
                 No tasks here — drag one in or click + Add card
               </div>
@@ -105,12 +144,14 @@ const Column = ({
       </Droppable>
 
       {/* Add card button */}
-      <button
-        onClick={() => onAddTask(columnId)}
-        className="mt-2 flex items-center gap-2 text-xs text-[#555] hover:text-[#888] px-2 py-1.5 rounded hover:bg-[var(--bg-card)] transition"
-      >
-        <span>＋</span> Add card
-      </button>
+      {!collapsed && (
+        <button
+          onClick={() => onAddTask(columnId)}
+          className="mt-2 flex items-center gap-2 text-xs text-[#555] hover:text-[#888] px-2 py-1.5 rounded hover:bg-[var(--bg-card)] transition"
+        >
+          <span>＋</span> Add card
+        </button>
+      )}
     </div>
   );
 };
