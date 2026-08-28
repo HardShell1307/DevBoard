@@ -10,7 +10,7 @@ const COLUMNS = ["backlog", "inprogress", "review", "done"];
 
 const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFilter = "all" }) => {
 
-  const { tasks, updateTask, addTask } = useBoard();
+  const { tasks, updateTask, addTask, loading } = useBoard();
   const displayedTasks = filteredTasks ?? tasks;
   const [modalOpen, setModalOpen] = useState(false);
   const [defaultStatus, setDefaultStatus] = useState("backlog");
@@ -51,6 +51,7 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFi
   
 
   const isEmpty = COLUMNS.every(col => getTasksByStatus(col).length === 0);
+  const totalTasks = tasks.length;
 
 
   const onDragEnd = async (result) => {
@@ -199,7 +200,25 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFi
 
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="board board-bg flex flex-col md:flex-row gap-4 p-4 overflow-x-hidden md:overflow-x-auto overflow-y-auto h-full">
-          {isEmpty ? (
+          {totalTasks === 0 && !loading ? (
+            <div className="flex flex-col items-center justify-center w-full py-24">
+              <div className="text-6xl animate-bounce mb-4">
+                🗂️
+              </div>
+              <h2 className="text-lg font-semibold text-[#f0f0f0] mb-2">
+                Your board is empty!
+              </h2>
+              <p className="text-sm text-[#555] mb-6">
+                Create your first task to get started
+              </p>
+              <button
+                onClick={() => handleAddTask('backlog')}
+                className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium transition"
+              >
+                ✨ Create first task
+              </button>
+            </div>
+          ) : isEmpty ? (
             <div className="flex flex-col items-center justify-center w-full h-64 text-gray-500">
               <span className="text-4xl mb-4">🔍</span>
               <h3 className="text-xl font-semibold mb-2">No tasks found!</h3>
