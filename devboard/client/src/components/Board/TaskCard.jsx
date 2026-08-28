@@ -166,7 +166,7 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
         >
           {/* Title */}
           <div className="flex items-start justify-between gap-2 mb-2">
-            <p className="text-sm font-medium text-[#f0f0f0] leading-snug">
+            <p className="text-sm font-medium text-[#f0f0f0] leading-snug min-w-0 break-words">
               {highlightMatch(task.title, searchQuery)}
             </p>
 
