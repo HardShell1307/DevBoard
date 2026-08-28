@@ -158,6 +158,15 @@ export const BoardProvider = ({ children }) => {
     setSearchQuery("");
   };
 
+  const logoutAll = async () => {
+    try {
+      await axios.post("/api/auth/logout-all", {}, authHeaders());
+      logout();
+    } catch (err) {
+      console.error("logoutAll failed:", err);
+      throw err;
+    }
+  };
   const tasks = useMemo(() => {
     let filtered = allTasks;
 
@@ -210,9 +219,10 @@ export const BoardProvider = ({ children }) => {
         addSnippet,
         login,
         logout,
+        logoutAll,
         fetchTasks,
         error,
-        setError
+        setError,
       }}
     >
       {children}
