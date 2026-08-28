@@ -66,7 +66,7 @@ const timeAgo = (date) => {
   return `${days}d ago`;
 };
 
-const TaskCard = ({ task, index, onSelect }) => {
+const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
   const [expanded, setExpanded] = useState(false);
   const [selectedSnippet, setSelectedSnippet] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -178,6 +178,19 @@ const TaskCard = ({ task, index, onSelect }) => {
               className="shrink-0 text-xs"
             >
               {copied ? "✅" : "📋"}
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPin(task._id);
+              }}
+              aria-label={pinned ? "Unpin task" : "Pin task"}
+              title={pinned ? "Unpin task" : "Pin task"}
+              className="shrink-0 text-xs"
+            >
+              {pinned ? "📌" : "📍"}
             </button>
           </div>
 
