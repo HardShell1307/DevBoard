@@ -52,7 +52,33 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFi
 
   const isEmpty = COLUMNS.every(col => getTasksByStatus(col).length === 0);
   const totalTasks = tasks.length;
+  const playDoneSound = () => {
+    const AudioContextClass =
+      window.AudioContext || window.webkitAudioContext;
 
+    if (!AudioContextClass) return;
+
+    const ctx = new AudioContextClass();
+    const notes = [523, 659, 784];
+
+    notes.forEach((frequency, index) => {
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const startTime = ctx.currentTime + index * 0.1;
+
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+
+      oscillator.frequency.value = frequency;
+      oscillator.type = "sine";
+
+      gain.gain.setValueAtTime(0.3, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.5);
+
+      oscillator.start(startTime);
+      oscillator.stop(startTime + 0.5);
+    });
+  };
 
   const onDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
@@ -72,6 +98,7 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFi
       source.droppableId !== "done"
     ) {
       confetti({ particleCount: 100, spread: 70 });
+       playDoneSound();
     }
 
     const sourceTasks = Array.from(getTasksByStatus(source.droppableId));
