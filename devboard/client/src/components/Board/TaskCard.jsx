@@ -377,34 +377,19 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigator.clipboard.writeText(task.title);
+                  onSelect(task);
                 }}
-                title="Copy title"
-                className="opacity-0 group-hover:opacity-100 text-[#555] hover:text-[#aaa] transition text-xs"
+                className="opacity-0 group-hover:opacity-100 text-[10px] px-2 py-1 rounded bg-gray-600 text-white hover:bg-gray-700 transition-opacity"
               >
-                📋
+                ✏️
               </button>
+
               {task.assignee?.name && (
                 <div title={task.assignee.name} className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
                   {task.assignee.name[0].toUpperCase()}
                 </div>
               )}
             </div>
-            <button
-              onClick={(e) => {
-              e.stopPropagation();
-              onSelect(task);
-            }}
-             className="opacity-0 group-hover:opacity-100 text-[10px] px-2 py-1 rounded bg-gray-600 text-white hover:bg-gray-700 transition-opacity"
-             >
-              ✏️
-             </button>
-
-            {task.assignee?.name && (
-              <div title={task.assignee.name} className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
-                {task.assignee.name[0].toUpperCase()}
-              </div>
-            )}
           </div>
 
           {/* Last updated */}
