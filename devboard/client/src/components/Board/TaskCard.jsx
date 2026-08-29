@@ -375,10 +375,13 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
             </div>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   onSelect(task);
                 }}
+                aria-label="Edit task"
+                title="Edit task"
                 className="opacity-0 group-hover:opacity-100 text-[10px] px-2 py-1 rounded bg-gray-600 text-white hover:bg-gray-700 transition-opacity"
               >
                 ✏️
