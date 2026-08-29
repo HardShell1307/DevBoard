@@ -29,6 +29,22 @@ const TAG_COLORS = [
 const getTagColor = (tag) =>
   TAG_COLORS[tag.charCodeAt(0) % TAG_COLORS.length];
 
+const AVATAR_COLORS = [
+  "bg-purple-700",
+  "bg-blue-600",
+  "bg-green-600",
+  "bg-rose-600",
+  "bg-amber-600",
+  "bg-teal-600",
+];
+
+// Sum every character so that names sharing a first letter still differ.
+const getAvatarColor = (name) => {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+};
+
 // Search terms are raw user input, so they have to be escaped before they can
 // be used as a pattern — searching for "(" would otherwise throw.
 const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -385,7 +401,7 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
               </button>
 
               {task.assignee?.name && (
-                <div title={task.assignee.name} className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
+                <div title={task.assignee.name} className={`w-5 h-5 rounded-full ${getAvatarColor(task.assignee.name)} flex items-center justify-center text-[9px] font-bold text-white`}>
                   {task.assignee.name[0].toUpperCase()}
                 </div>
               )}
