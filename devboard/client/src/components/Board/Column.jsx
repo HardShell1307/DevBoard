@@ -22,6 +22,8 @@ const COLUMN_CONFIG = {
   done: { label: "Done", color: "#639922", dot: "bg-green-500" },
 };
 
+const WIP_LIMIT = 5;
+
 const Column = ({
   columnId,
   tasks,
@@ -63,6 +65,8 @@ const Column = ({
       dot: "bg-gray-500",
       color: "#888",
     };
+
+  const isOverLimit = columnId === "inprogress" && tasks.length > WIP_LIMIT;
 
   return (
     <div
@@ -108,6 +112,13 @@ const Column = ({
           </button>
         )}
       </div>
+
+      {/* WIP limit warning */}
+      {isOverLimit && (
+        <div className="mb-2 px-2 py-1.5 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md">
+          ⚠️ WIP limit exceeded! ({tasks.length}/{WIP_LIMIT})
+        </div>
+      )}
 
       {/* Droppable cards area */}
       <Droppable droppableId={columnId}>
