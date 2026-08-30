@@ -14,6 +14,7 @@ const COLORS = [
   "#E74C3C",
   "",
 ];
+const EMOJIS = ['👍', '🔥', '😅', '💀', '✅'];
 
 const TaskModal = ({
   task,
@@ -196,6 +197,19 @@ const TaskModal = ({
       onClose();
     }
   };
+  const handleReact = async (emoji) => {
+  if (!task) {
+    toast.error("No task to react to");
+    return;
+  }
+  try {
+    // TODO: sending a request to the server to update the reactions
+    // Example: await updateTask(task._id, { emoji });
+    console.log('React to', emoji);
+  } catch (err) {
+    console.error('Failed to react', err);
+  }
+};
 
   const timeAgo = (date) => {
   const diff = Date.now() - new Date(date);
@@ -438,6 +452,21 @@ const TaskModal = ({
             <option value="4h">4 hours</option>
             <option value="1d">1 day</option>
           </select>
+          <div className="flex items-center gap-1 border-t border-[var(--border-primary)] pt-3 mt-2">
+            <span className="text-xs text-[var(--text-secondary)] mr-1">Reactions:</span>
+            {EMOJIS.map((emoji) => {
+              const reaction = task?.reactions?.find((r) => r.emoji === emoji);
+              return (
+                <button
+                  key={emoji}
+                  onClick={() => handleReact(emoji)}
+                  className="text-xs px-2 py-1 rounded-full bg-[#2a2a2f] hover:bg-[#333] transition"
+                >
+                  {emoji} {reaction?.count || ''}
+                </button>
+              );
+            })}
+        </div>
         </div>
 
         <div className="flex items-center justify-between gap-2 px-5 py-4 border-t border-[var(--border-primary)]">
