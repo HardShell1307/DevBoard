@@ -31,6 +31,7 @@ const Dashboard = () => {
   useEffect(() => {
     document.title = "Dashboard — DevBoard";
   }, []);
+  const [focusMode, setFocusMode] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isCreatingFirstTask, setIsCreatingFirstTask] = useState(false);
@@ -240,6 +241,18 @@ const Dashboard = () => {
             👋 {getGreeting()},{user?.name}
           </span> */}
           <button
+            type="button"
+            onClick={() => setFocusMode((v) => !v)}
+            aria-label={focusMode ? "Disable focus mode" : "Enable focus mode"}
+            className={`text-xs px-3 py-1.5 rounded-lg border transition ${
+              focusMode
+                ? "border-purple-500 text-purple-400 bg-purple-500/10"
+                : "border-[#2a2a2f] text-[#666] hover:text-white"
+            }`}
+          >
+            {focusMode ? "🎯 Focused" : "🎯 Focus"}
+          </button>
+          <button
             onClick={handleClearDone}
             className="text-xs text-[#666] hover:text-red-400 transition px-3 py-1.5 border border-[#2a2a2f] rounded-lg"
           >
@@ -303,7 +316,7 @@ const Dashboard = () => {
             </button>
           </div>
         ) : (
-          <KanbanBoard onSelectTask={setSelectedTask} />
+          <KanbanBoard onSelectTask={setSelectedTask} focusMode={focusMode} />
         )}
       </div>
       {/* Task Edit Modal */}
