@@ -6,7 +6,7 @@ const WEEKS_TO_SHOW = 12;
 const formatDateKey = (date) => date.toISOString().split("T")[0];
 
 const getColorClass = (count) => {
-  if (count === 0) return "bg-[#1a1a1f]";
+  if (count === 0) return "bg-[var(--bg-card)]";
   if (count === 1) return "bg-purple-900";
   if (count <= 3) return "bg-purple-700";
   if (count <= 5) return "bg-purple-500";
@@ -59,10 +59,10 @@ const Heatmap = () => {
   };
 
   return (
-    <div className="px-5 py-4 bg-[#1a1a1f] border-b border-[#2a2a2f]">
+    <div className="px-5 py-4 bg-[var(--bg-card)] border-b border-[var(--border-primary)]">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-medium text-[#a0a0a5]">Task Activity</span>
-        {hovered && <span className="text-xs text-[#f0f0f0]">{hovered}</span>}
+        <span className="text-xs font-medium text-[var(--text-muted)]">Task Activity</span>
+        {hovered && <span className="text-xs text-[var(--text-primary)]">{hovered}</span>}
       </div>
       <div className="flex gap-[3px]">
         {weeks.map((col, wIdx) => (

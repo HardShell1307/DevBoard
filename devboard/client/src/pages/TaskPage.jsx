@@ -10,7 +10,7 @@ const TaskPage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)] text-[#888]">
+      <div className="flex items-center justify-center h-screen bg-[var(--bg-primary)] text-[var(--text-secondary)]">
         Loading task...
       </div>
     );
@@ -22,10 +22,10 @@ const TaskPage = () => {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-[var(--bg-primary)] text-center p-8">
         <span className="text-6xl mb-4">🔍</span>
-        <h2 className="text-2xl font-semibold text-[#f0f0f0] mb-2">
+        <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-2">
           Task not found
         </h2>
-        <p className="text-[#888] mb-6">
+        <p className="text-[var(--text-secondary)] mb-6">
           It may have been deleted, or you don't have access.
         </p>
         <button
