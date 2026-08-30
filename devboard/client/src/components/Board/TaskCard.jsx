@@ -66,7 +66,16 @@ const timeAgo = (date) => {
   return `${days}d ago`;
 };
 
-const TaskCard = ({ task, index, onSelect }) => {
+const TaskCard = ({
+  task,
+  index,
+  onSelect,
+  pinned,
+  onPin,
+  selectionMode = false,
+  selected = false,
+  onToggleSelect,
+}) => {
   const [expanded, setExpanded] = useState(false);
   const [selectedSnippet, setSelectedSnippet] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -151,7 +160,9 @@ const TaskCard = ({ task, index, onSelect }) => {
           }}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          onClick={() => onSelect(task)}
+          onClick={() =>
+            selectionMode ? onToggleSelect(task._id) : onSelect(task)
+          }
           onContextMenu={handleContextMenu}
           style={{
             ...provided.draggableProps.style,
@@ -161,12 +172,23 @@ const TaskCard = ({ task, index, onSelect }) => {
           }}
           className={`card group bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
             hover:shadow-lg ${GLOW[task.priority] || "hover:shadow-purple-500/20"}
-            ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : isOverdue
+            ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : selected
+              ? "border-purple-500" : isOverdue
               ? "border-red-500 border-l-4 hover:border-red-400" : "border-[var(--border-primary)] hover:border-[#444]"}`}
         >
           {/* Title */}
           <div className="flex items-start justify-between gap-2 mb-2">
-            <p className="text-sm font-medium text-[#f0f0f0] leading-snug">
+            {selectionMode && (
+              <input
+                type="checkbox"
+                checked={selected}
+                onChange={() => onToggleSelect(task._id)}
+                onClick={(e) => e.stopPropagation()}
+                className="accent-purple-500 shrink-0 mt-0.5 cursor-pointer"
+              />
+            )}
+
+            <p className="text-sm font-medium text-[#f0f0f0] leading-snug min-w-0 break-words">
               {highlightMatch(task.title, searchQuery)}
             </p>
 
@@ -178,6 +200,19 @@ const TaskCard = ({ task, index, onSelect }) => {
               className="shrink-0 text-xs"
             >
               {copied ? "✅" : "📋"}
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPin(task._id);
+              }}
+              aria-label={pinned ? "Unpin task" : "Pin task"}
+              title={pinned ? "Unpin task" : "Pin task"}
+              className="shrink-0 text-xs"
+            >
+              {pinned ? "📌" : "📍"}
             </button>
           </div>
 
@@ -364,34 +399,19 @@ const TaskCard = ({ task, index, onSelect }) => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigator.clipboard.writeText(task.title);
+                  onSelect(task);
                 }}
-                title="Copy title"
-                className="opacity-0 group-hover:opacity-100 text-[#555] hover:text-[#aaa] transition text-xs"
+                className="opacity-0 group-hover:opacity-100 text-[10px] px-2 py-1 rounded bg-gray-600 text-white hover:bg-gray-700 transition-opacity"
               >
-                📋
+                ✏️
               </button>
+
               {task.assignee?.name && (
                 <div title={task.assignee.name} className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
                   {task.assignee.name[0].toUpperCase()}
                 </div>
               )}
             </div>
-            <button
-              onClick={(e) => {
-              e.stopPropagation();
-              onSelect(task);
-            }}
-             className="opacity-0 group-hover:opacity-100 text-[10px] px-2 py-1 rounded bg-gray-600 text-white hover:bg-gray-700 transition-opacity"
-             >
-              ✏️
-             </button>
-
-            {task.assignee?.name && (
-              <div title={task.assignee.name} className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
-                {task.assignee.name[0].toUpperCase()}
-              </div>
-            )}
           </div>
 
           {/* Last updated */}

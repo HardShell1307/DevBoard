@@ -16,6 +16,7 @@ const Dashboard = () => {
   const {
     user,
     logout,
+    logoutAll,
     updateTask,
     deleteTask,
     loading,
@@ -30,6 +31,7 @@ const Dashboard = () => {
   useEffect(() => {
     document.title = "Dashboard — DevBoard";
   }, []);
+  const [focusMode, setFocusMode] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isCreatingFirstTask, setIsCreatingFirstTask] = useState(false);
@@ -104,6 +106,16 @@ const Dashboard = () => {
     }
   };
 
+  const handleLogoutAll = async () => {
+    if (window.confirm("Are you sure you want to logout from all devices?")) {
+      try {
+        await logoutAll();
+      } catch (err) {
+        console.error("Logout from all devices failed:", err);
+      }
+    }
+  };
+
   const handleClearDone = async () => {
     if (window.confirm("Clear all done tasks?")) {
       const doneTasks = tasks.filter((t) => t.status === "done");
@@ -126,9 +138,7 @@ const Dashboard = () => {
 
     const updated = [
       trimmed,
-      ...searchHistory.filter(
-        (h) => h.toLowerCase() !== trimmed.toLowerCase(),
-      ),
+      ...searchHistory.filter((h) => h.toLowerCase() !== trimmed.toLowerCase()),
     ].slice(0, 5);
     setSearchHistory(updated);
     localStorage.setItem("search_history", JSON.stringify(updated));
@@ -139,12 +149,12 @@ const Dashboard = () => {
   };
 
   const getGreeting = () => {
-  const hour = new Date().getHours();
+    const hour = new Date().getHours();
 
-  if (hour < 12) return "🌅 Good morning";
-  if (hour < 17) return "🌞 Good afternoon";
-  return "🌙 Good evening";
- };
+    if (hour < 12) return "🌅 Good morning";
+    if (hour < 17) return "🌞 Good afternoon";
+    return "🌙 Good evening";
+  };
 
   return (
     <div className="flex flex-col h-screen bg-[var(--bg-primary)]">
@@ -227,25 +237,48 @@ const Dashboard = () => {
               {isFullscreen ? "⊠ Exit" : "⛶ Focus"}
             </button>
           )}
-          <span className="text-xs text-[#666]">👋 {getGreeting()},{user?.name}</span>
+          {/* <span className="text-xs text-[#666]">
+            👋 {getGreeting()},{user?.name}
+          </span> */}
+          <button
+            type="button"
+            onClick={() => setFocusMode((v) => !v)}
+            aria-label={focusMode ? "Disable focus mode" : "Enable focus mode"}
+            className={`text-xs px-3 py-1.5 rounded-lg border transition ${
+              focusMode
+                ? "border-purple-500 text-purple-400 bg-purple-500/10"
+                : "border-[#2a2a2f] text-[#666] hover:text-white"
+            }`}
+          >
+            {focusMode ? "🎯 Focused" : "🎯 Focus"}
+          </button>
           <button
             onClick={handleClearDone}
             className="text-xs text-[#666] hover:text-red-400 transition px-3 py-1.5 border border-[#2a2a2f] rounded-lg"
           >
             🗑️ Clear Done
           </button>
+
+          <button
+            onClick={handleLogoutAll}
+            className="text-xs text-[#666] hover:text-red-400 transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg"
+          >
+            🔐 Logout All
+          </button>
+
+          <button
+            onClick={() => setShowHelp((v) => !v)}
+            aria-label="Keyboard shortcuts help"
+            title="Keyboard shortcuts (?)"
+            className="text-xs text-[#666] hover:text-[#aaa] px-2 py-1 border border-[#2a2a2f] rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition"
+          >
+            ⌨️ ?
+          </button>
+
           <button
             onClick={handleLogout}
             className="text-xs text-[#666] hover:text-[#aaa] transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg"
           >
-            <button
-              onClick={() => setShowHelp((v) => !v)}
-              aria-label="Keyboard shortcuts help"
-              title="Keyboard shortcuts (?)"
-              className="text-xs text-[#666] hover:text-[#aaa] px-2 py-1 border border-[#2a2a2f] rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition"
-            >
-              ⌨️ ?
-            </button>
             Logout
           </button>
         </div>
@@ -283,7 +316,7 @@ const Dashboard = () => {
             </button>
           </div>
         ) : (
-          <KanbanBoard onSelectTask={setSelectedTask} />
+          <KanbanBoard onSelectTask={setSelectedTask} focusMode={focusMode} />
         )}
       </div>
       {/* Task Edit Modal */}
@@ -316,7 +349,7 @@ const Dashboard = () => {
           onClick={() => {
             window.scrollTo({ top: 0, behavior: "smooth" });
             const scrollContainers = document.querySelectorAll(
-              ".overflow-y-auto, .overflow-y-scroll"
+              ".overflow-y-auto, .overflow-y-scroll",
             );
             scrollContainers.forEach((container) => {
               container.scrollTo({ top: 0, behavior: "smooth" });
@@ -331,17 +364,42 @@ const Dashboard = () => {
       {showHelp && (
         <div
           className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={(e) => { if (e.target === e.currentTarget) setShowHelp(false); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowHelp(false);
+          }}
         >
           <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl w-full max-w-sm shadow-2xl">
             <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-primary)]">
-              <h2 className="font-semibold text-[#f0f0f0] text-sm">Keyboard Shortcuts</h2>
-              <button onClick={() => setShowHelp(false)} className="text-[#666] hover:text-[#aaa] text-xl leading-none" aria-label="Close">✕</button>
+              <h2 className="font-semibold text-[#f0f0f0] text-sm">
+                Keyboard Shortcuts
+              </h2>
+              <button
+                onClick={() => setShowHelp(false)}
+                className="text-[#666] hover:text-[#aaa] text-xl leading-none"
+                aria-label="Close"
+              >
+                ✕
+              </button>
             </div>
             <div className="p-5 flex flex-col gap-3 text-sm">
-              <div className="flex items-center justify-between"><span className="text-[#a0a0a5]">New task</span><kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[#f0f0f0]">N</kbd></div>
-              <div className="flex items-center justify-between"><span className="text-[#a0a0a5]">Close modal</span><kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[#f0f0f0]">ESC</kbd></div>
-              <div className="flex items-center justify-between"><span className="text-[#a0a0a5]">Toggle this menu</span><kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[#f0f0f0]">?</kbd></div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#a0a0a5]">New task</span>
+                <kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[#f0f0f0]">
+                  N
+                </kbd>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#a0a0a5]">Close modal</span>
+                <kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[#f0f0f0]">
+                  ESC
+                </kbd>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#a0a0a5]">Toggle this menu</span>
+                <kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[#f0f0f0]">
+                  ?
+                </kbd>
+              </div>
             </div>
           </div>
         </div>

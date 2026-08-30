@@ -1,19 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import TaskCard from "./TaskCard";
-
-// Collapse state is per column and purely local — no backend involved.
-const collapsedKey = (columnId) => `column_collapsed_${columnId}`;
-
-const readCollapsed = (columnId) => {
-  try {
-    return localStorage.getItem(collapsedKey(columnId)) === "true";
-  } catch {
-    // Storage can be unavailable (private mode, blocked cookies) — the column
-    // simply starts expanded then.
-    return false;
-  }
-};
+import { useBoard } from "../../context/BoardContext";
 
 const COLUMN_CONFIG = {
   backlog: { label: "Backlog", color: "#888", dot: "bg-gray-500" },
@@ -30,7 +18,9 @@ const Column = ({
   onSelectTask,
   onAddTask,
   isActive,
+  columns = [],
 }) => {
+  const { tasks: allTasks, updateTask } = useBoard();
   const [sorted, setSorted] = useState(false);
   const [pinnedIds, setPinnedIds] = useState(() => {
     try {
@@ -67,12 +57,85 @@ const Column = ({
   };
 
   useEffect(() => {
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [pinnedIds, setPinnedIds] = useState(() => {
     try {
-      localStorage.setItem(collapsedKey(columnId), String(collapsed));
+      return new Set(
+        tasks
+          .filter((task) => localStorage.getItem(`pin_${task._id}`) === "true")
+          .map((task) => task._id)
+      );
     } catch {
-      // Not being able to remember it is not worth breaking the board over.
+      return new Set();
     }
-  }, [collapsed, columnId]);
+  });
+  const [animate, setAnimate] = useState(false);
+  const handlePin = (id) => {
+    setPinnedIds((prev) => {
+      const next = new Set(prev);
+      const nowPinned = !next.has(id);
+
+      if (nowPinned) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+
+      try {
+        localStorage.setItem(`pin_${id}`, String(nowPinned));
+      } catch {
+        // Not being able to remember the pin is not worth breaking the board over.
+      }
+
+      return next;
+    });
+  };
+
+  const toggleSelectionMode = () => {
+    if (selectionMode) setSelectedIds(new Set());
+    setSelectionMode((value) => !value);
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+
+      return next;
+    });
+  };
+
+  const handleMoveTo = async (target) => {
+    if (!selectionMode || selectedIds.size === 0 || target === columnId) {
+      return;
+    }
+
+    const targetTasks = allTasks.filter(
+      (task) => String(task.status) === String(target),
+    );
+    let base = targetTasks.reduce(
+      (max, task) => Math.max(max, Number(task.order) || 0),
+      -1,
+    );
+
+    const updates = [...selectedIds].map((id) => {
+      const task = allTasks.find((t) => String(t._id) === String(id));
+      if (!task) return null;
+
+      base += 1;
+      return updateTask(String(task._id), { status: target, order: base });
+    });
+
+    await Promise.all(updates);
+    setSelectedIds(new Set());
+    setSelectionMode(false);
+  };
 
   useEffect(() => {
     setAnimate(true);
@@ -113,39 +176,71 @@ const Column = ({
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-3 px-1">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setCollapsed((value) => !value)}
-            aria-expanded={!collapsed}
-            title={collapsed ? "Expand column" : "Collapse column"}
-            className="text-[10px] text-[#555] hover:text-purple-400 transition"
-          >
-            {collapsed ? "▶" : "▼"}
-          </button>
+        {selectionMode ? (
+          <>
+            <button
+              type="button"
+              onClick={toggleSelectionMode}
+              title="Exit selection mode"
+              className="text-[10px] text-purple-400 hover:text-purple-300 transition"
+            >
+              ☑ Exit Select mode
+            </button>
 
-          <span className={`w-2 h-2 rounded-full ${config.dot}`} />
+            <select
+              defaultValue=""
+              onChange={(e) => handleMoveTo(e.target.value)}
+              className="text-[10px] bg-[var(--bg-input)] border border-[var(--border-primary)] text-[#888] rounded px-1 py-0.5 focus:border-purple-500 focus:outline-none"
+            >
+              <option value="" disabled>
+                Move to…
+              </option>
+              {columns
+                .filter((col) => col !== columnId)
+                .map((col) => (
+                  <option key={col} value={col}>
+                    {COLUMN_CONFIG[col]?.label ?? col}
+                  </option>
+                ))}
+            </select>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${config.dot}`} />
 
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#888]">
-            {config.label}
-          </span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#888]">
+                {config.label}
+              </span>
 
-          <span
-            className={`text-[10px] bg-[var(--border-primary)] text-[#666] px-1.5 py-0.5 rounded-full transition-transform duration-300 ${animate ? "scale-125" : "scale-100"
-              }`}
-          >
-            {tasks.length}
-          </span>
-        </div>
+              <span
+                className={`text-[10px] bg-[var(--border-primary)] text-[#666] px-1.5 py-0.5 rounded-full transition-transform duration-300 ${animate ? "scale-125" : "scale-100"
+                  }`}
+              >
+                {tasks.length}
+              </span>
+            </div>
 
-        {!collapsed && (
-          <button
-            type="button"
-            onClick={() => setSorted((value) => !value)}
-            className="text-[10px] text-[#555] hover:text-purple-400 transition"
-          >
-            {sorted ? "🔃 sorted" : "🔃 sort"}
-          </button>
+            <div className="flex items-center gap-2">
+              {tasks.length >= 1 && (
+                <button
+                  type="button"
+                  onClick={toggleSelectionMode}
+                  title="Select tasks to move"
+                  className="text-[10px] text-[#555] hover:text-purple-400 transition"
+                >
+                  ☑ Select
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setSorted((value) => !value)}
+                className="text-[10px] text-[#555] hover:text-purple-400 transition"
+              >
+                {sorted ? "🔃 sorted" : "🔃 sort"}
+              </button>
+            </div>
+          </>
         )}
       </div>
 
@@ -163,14 +258,10 @@ const Column = ({
             ref={provided.innerRef}
             {...provided.droppableProps}
             className={`flex flex-col gap-2 rounded-lg p-1 transition-colors
-              ${collapsed ? "min-h-[40px]" : "flex-1 min-h-[80px]"}
+              flex-1 min-h-[80px]
               ${snapshot.isDraggingOver ? "bg-purple-500/5" : ""}`}
           >
-            {collapsed ? (
-              <div className="flex items-center justify-center text-center p-2 text-xs text-[#666] border border-dashed border-[var(--border-primary)] rounded-md">
-                {tasks.length === 1 ? "1 task hidden" : `${tasks.length} tasks hidden`}
-              </div>
-            ) : tasks.length === 0 ? (
+            {tasks.length === 0 ? (
               <div className="flex items-center justify-center text-center p-3 text-xs text-[#666] border border-dashed border-[var(--border-primary)] rounded-md my-auto">
                 No tasks here — drag one in or click + Add card
               </div>
@@ -183,6 +274,9 @@ const Column = ({
                   onSelect={onSelectTask}
                   pinned={pinnedIds.has(task._id)}
                   onPin={handlePin}
+                  selectionMode={selectionMode}
+                  selected={selectedIds.has(task._id)}
+                  onToggleSelect={toggleSelect}
                 />
               ))
             )}
@@ -193,14 +287,12 @@ const Column = ({
       </Droppable>
 
       {/* Add card button */}
-      {!collapsed && (
-        <button
-          onClick={() => onAddTask(columnId)}
-          className="mt-2 flex items-center gap-2 text-xs text-[#555] hover:text-[#888] px-2 py-1.5 rounded hover:bg-[var(--bg-card)] transition"
-        >
-          <span>＋</span> Add card
-        </button>
-      )}
+      <button
+        onClick={() => onAddTask(columnId)}
+        className="mt-2 flex items-center gap-2 text-xs text-[#555] hover:text-[#888] px-2 py-1.5 rounded hover:bg-[var(--bg-card)] transition"
+      >
+        <span>＋</span> Add card
+      </button>
     </div>
   );
 };
