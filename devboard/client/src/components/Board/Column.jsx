@@ -10,6 +10,8 @@ const COLUMN_CONFIG = {
   done: { label: "Done", color: "#639922", dot: "bg-green-500" },
 };
 
+const WIP_LIMIT = 5;
+
 const Column = ({
   columnId,
   tasks,
@@ -20,6 +22,41 @@ const Column = ({
 }) => {
   const { tasks: allTasks, updateTask } = useBoard();
   const [sorted, setSorted] = useState(false);
+  const [pinnedIds, setPinnedIds] = useState(() => {
+    try {
+      return new Set(
+        tasks
+          .filter((task) => localStorage.getItem(`pin_${task._id}`) === "true")
+          .map((task) => task._id)
+      );
+    } catch {
+      return new Set();
+    }
+  });
+  const [animate, setAnimate] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => readCollapsed(columnId));
+  const handlePin = (id) => {
+    setPinnedIds((prev) => {
+      const next = new Set(prev);
+      const nowPinned = !next.has(id);
+
+      if (nowPinned) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+
+      try {
+        localStorage.setItem(`pin_${id}`, String(nowPinned));
+      } catch {
+        // Not being able to remember the pin is not worth breaking the board over.
+      }
+
+      return next;
+    });
+  };
+
+  useEffect(() => {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [pinnedIds, setPinnedIds] = useState(() => {
@@ -128,6 +165,8 @@ const Column = ({
       color: "#888",
     };
 
+  const isOverLimit = columnId === "inprogress" && tasks.length > WIP_LIMIT;
+
   return (
     <div
       className={`flex flex-col w-full md:w-56 flex-shrink-0 rounded-lg transition-all ${isActive
@@ -204,6 +243,13 @@ const Column = ({
           </>
         )}
       </div>
+
+      {/* WIP limit warning */}
+      {isOverLimit && (
+        <div className="mb-2 px-2 py-1.5 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md">
+          ⚠️ WIP limit exceeded! ({tasks.length}/{WIP_LIMIT})
+        </div>
+      )}
 
       {/* Droppable cards area */}
       <Droppable droppableId={columnId}>
