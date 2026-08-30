@@ -115,19 +115,19 @@ const Column = ({
             onClick={() => setCollapsed((value) => !value)}
             aria-expanded={!collapsed}
             title={collapsed ? "Expand column" : "Collapse column"}
-            className="text-[10px] text-[#555] hover:text-purple-400 transition"
+            className="text-[10px] text-[var(--text-muted)] hover:text-purple-400 transition"
           >
             {collapsed ? "▶" : "▼"}
           </button>
 
           <span className={`w-2 h-2 rounded-full ${config.dot}`} />
 
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#888]">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
             {config.label}
           </span>
 
           <span
-            className={`text-[10px] bg-[var(--border-primary)] text-[#666] px-1.5 py-0.5 rounded-full transition-transform duration-300 ${animate ? "scale-125" : "scale-100"
+            className={`text-[10px] bg-[var(--border-primary)] text-[var(--text-secondary)] px-1.5 py-0.5 rounded-full transition-transform duration-300 ${animate ? "scale-125" : "scale-100"
               }`}
           >
             {tasks.length}
@@ -138,7 +138,7 @@ const Column = ({
           <button
             type="button"
             onClick={() => setSorted((value) => !value)}
-            className="text-[10px] text-[#555] hover:text-purple-400 transition"
+            className="text-[10px] text-[var(--text-muted)] hover:text-purple-400 transition"
           >
             {sorted ? "🔃 sorted" : "🔃 sort"}
           </button>
@@ -156,11 +156,11 @@ const Column = ({
               ${snapshot.isDraggingOver ? "bg-purple-500/5" : ""}`}
           >
             {collapsed ? (
-              <div className="flex items-center justify-center text-center p-2 text-xs text-[#666] border border-dashed border-[var(--border-primary)] rounded-md">
+              <div className="flex items-center justify-center text-center p-2 text-xs text-[var(--text-secondary)] border border-dashed border-[var(--border-primary)] rounded-md">
                 {tasks.length === 1 ? "1 task hidden" : `${tasks.length} tasks hidden`}
               </div>
             ) : tasks.length === 0 ? (
-              <div className="flex items-center justify-center text-center p-3 text-xs text-[#666] border border-dashed border-[var(--border-primary)] rounded-md my-auto">
+              <div className="flex items-center justify-center text-center p-3 text-xs text-[var(--text-secondary)] border border-dashed border-[var(--border-primary)] rounded-md my-auto">
                 No tasks here — drag one in or click + Add card
               </div>
             ) : (
@@ -185,7 +185,7 @@ const Column = ({
       {!collapsed && (
         <button
           onClick={() => onAddTask(columnId)}
-          className="mt-2 flex items-center gap-2 text-xs text-[#555] hover:text-[#888] px-2 py-1.5 rounded hover:bg-[var(--bg-card)] transition"
+          className="mt-2 flex items-center gap-2 text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] px-2 py-1.5 rounded hover:bg-[var(--bg-card)] transition"
         >
           <span>＋</span> Add card
         </button>

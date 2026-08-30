@@ -162,11 +162,11 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
           className={`card group bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
             hover:shadow-lg ${GLOW[task.priority] || "hover:shadow-purple-500/20"}
             ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : isOverdue
-              ? "border-red-500 border-l-4 hover:border-red-400" : "border-[var(--border-primary)] hover:border-[#444]"}`}
+              ? "border-red-500 border-l-4 hover:border-red-400" : "border-[var(--border-primary)] hover:border-[var(--border-hover)]"}`}
         >
           {/* Title */}
           <div className="flex items-start justify-between gap-2 mb-2">
-            <p className="text-sm font-medium text-[#f0f0f0] leading-snug min-w-0 break-words">
+            <p className="text-sm font-medium text-[var(--text-primary)] leading-snug min-w-0 break-words">
               {highlightMatch(task.title, searchQuery)}
             </p>
 
@@ -201,7 +201,7 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 text-[10px] text-[#666] hover:text-purple-400 mb-2"
+              className="flex items-center gap-1 text-[10px] text-[var(--text-secondary)] hover:text-purple-400 mb-2"
             >
               <span>🔗</span> #{task.githubIssueNumber} GitHub Issue
             </a>
@@ -282,7 +282,7 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
                     </button>
                   </div>
 
-                  <div className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--border-primary)] text-[#888] border border-[var(--border-primary)] w-fit mb-1.5">
+                  <div className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--border-primary)] text-[var(--text-secondary)] border border-[var(--border-primary)] w-fit mb-1.5">
                     {task.snippets[selectedSnippet].language || "javascript"}
                   </div>
 
@@ -342,7 +342,7 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
           {/* Due date */}
           {task.dueDate && (
             <div
-              className={`mt-2 text-[10px] flex items-center gap-1.5 ${isOverdue ? "text-red-400" : "text-[#888]"
+              className={`mt-2 text-[10px] flex items-center gap-1.5 ${isOverdue ? "text-red-400" : "text-[var(--text-secondary)]"
                 }`}
             >
               <span>📅 {new Date(task.dueDate).toLocaleDateString()}</span>
@@ -357,14 +357,14 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
             </div>
           )}
           {task.estimate && (
-            <div className="mt-1 text-[10px] flex items-center gap-1.5 text-[#888]">
+            <div className="mt-1 text-[10px] flex items-center gap-1.5 text-[var(--text-secondary)]">
               <span>⏱️ {task.estimate}</span>
             </div>
           )}
 
           {/* Footer */}
           <div className="flex items-center justify-between mt-2">
-            <div className="flex items-center gap-2 text-[#555] text-[10px]">
+            <div className="flex items-center gap-2 text-[var(--text-muted)] text-[10px]">
               {task.pomodoroCount > 0 && <span>🍅 ×{task.pomodoroCount}</span>}
               {task.snippets?.length > 0 && (
                 <span>📎 {task.snippets.length}</span>
@@ -395,7 +395,7 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
           {/* Last updated */}
           
           {task.updatedAt && (
-            <div className="mt-1 text-[10px] text-[#666]">
+            <div className="mt-1 text-[10px] text-[var(--text-secondary)]">
               ✏️ updated {timeAgo(task.updatedAt)}
             </div>
           )}
@@ -414,7 +414,7 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
                   closeContextMenu();
                   onSelect(task);
                 }}
-                className="w-full px-3 py-1.5 text-left text-xs text-[#f0f0f0] hover:bg-[var(--border-primary)]"
+                className="w-full px-3 py-1.5 text-left text-xs text-[var(--text-primary)] hover:bg-[var(--border-primary)]"
               >
                 ✏️ Edit
               </button>
@@ -435,7 +435,7 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
                   e.stopPropagation();
                   handleDuplicate();
                 }}
-                className="w-full px-3 py-1.5 text-left text-xs text-[#f0f0f0] hover:bg-[var(--border-primary)]"
+                className="w-full px-3 py-1.5 text-left text-xs text-[var(--text-primary)] hover:bg-[var(--border-primary)]"
               >
                 📄 Duplicate
               </button>

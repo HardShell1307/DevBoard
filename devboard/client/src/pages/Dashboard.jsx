@@ -12,6 +12,11 @@ const formatStars = (n) => {
   return String(n);
 };
 
+const isNightTime = () => {
+  const hour = new Date().getHours();
+  return hour >= 18 || hour < 6;
+};
+
 const Dashboard = () => {
   const {
     user,
@@ -37,6 +42,7 @@ const Dashboard = () => {
   const [isCreatingFirstTask, setIsCreatingFirstTask] = useState(false);
   const [showTop, setShowTop] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isNight, setIsNight] = useState(isNightTime());
   const [searchHistory, setSearchHistory] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("search_history") || "[]");
@@ -45,7 +51,16 @@ const Dashboard = () => {
       return [];
     }
   });
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsNight(isNightTime());
+    }, 60000);
 
+    return () => clearInterval(interval);
+  }, []);
+  useEffect(() => {
+    document.documentElement.classList.toggle("light", !isNight);
+  }, [isNight]);
   useEffect(() => {
     const handleScroll = (event) => {
       let scrollTop = 0;
@@ -91,7 +106,7 @@ const Dashboard = () => {
             {[1, 2, 3].map((card) => (
               <div
                 key={card}
-                className="animate-pulse bg-[#2a2a2f] rounded-lg h-20 w-full"
+                className="animate-pulse bg-[var(--bg-muted)] rounded-lg h-20 w-full"
               />
             ))}
           </div>
@@ -168,7 +183,7 @@ const Dashboard = () => {
           <span className="text-xs bg-purple-600/20 text-purple-400 px-2 py-0.5 rounded-full ml-1">
             beta
           </span>
-          <span className="text-xs text-[#666] ml-2">
+          <span className="text-xs text-[var(--text-secondary)] ml-2">
             {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
           </span>
           {activeTag && (
@@ -191,7 +206,7 @@ const Dashboard = () => {
               }}
               onBlur={() => handleSearch(searchQuery)}
               placeholder="Search tasks by title or tag..."
-              className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl px-4 py-2.5 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/15 transition"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/15 transition"
             />
           </label>
           {searchHistory.length > 0 && (
@@ -201,7 +216,7 @@ const Dashboard = () => {
                   key={h}
                   type="button"
                   onClick={() => handleSearch(h)}
-                  className="text-[10px] text-[#555] hover:text-purple-400 px-2 py-0.5 bg-[#2a2a2f] rounded-full transition"
+                  className="text-[10px] text-[var(--text-muted)] hover:text-purple-400 px-2 py-0.5 bg-[var(--bg-muted)] rounded-full transition"
                 >
                   🕐 {h}
                 </button>
@@ -209,59 +224,51 @@ const Dashboard = () => {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-3 no-print">
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="text-xs text-[#666] hover:text-white transition px-3 py-1.5 border border-[#2a2a2f] rounded-lg"
-          >
-            🖨️ Print
-          </button>
+        <div className="flex items-center gap-3 no-print"><button type="button" onClick={handlePrint} className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg">🖨️ Print</button>
           <a
             href="https://github.com/anoopcodehack/DevBoard"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-[#666] hover:text-white transition px-3 py-1.5 border border-[#2a2a2f] rounded-lg"
+            className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg"
           >
             {!starsLoading && stars !== null
               ? `⭐ ${formatStars(stars)} Star on GitHub`
               : "⭐ Star on GitHub"}
           </a>
-          <span className="text-xs text-[#666]">👋 {user?.name}</span>
+          <span className="text-xs text-[var(--text-secondary)]">👋 {user?.name}</span>
           {document.fullscreenEnabled && (
             <button
               onClick={handleFullscreen}
               aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-              className="text-xs text-[#666] hover:text-red-400 transition px-3 py-1.5 border border-[#2a2a2f] rounded-lg"
+              className="text-xs text-[var(--text-secondary)] hover:text-red-400 transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg"
             >
               {isFullscreen ? "⊠ Exit" : "⛶ Focus"}
             </button>
           )}
-          {/* <span className="text-xs text-[#666]">
+          {/* <span className="text-xs text-[var(--text-secondary)]">
             👋 {getGreeting()},{user?.name}
           </span> */}
           <button
             type="button"
             onClick={() => setFocusMode((v) => !v)}
             aria-label={focusMode ? "Disable focus mode" : "Enable focus mode"}
-            className={`text-xs px-3 py-1.5 rounded-lg border transition ${
-              focusMode
+            className={`text-xs px-3 py-1.5 rounded-lg border transition ${focusMode
                 ? "border-purple-500 text-purple-400 bg-purple-500/10"
-                : "border-[#2a2a2f] text-[#666] hover:text-white"
-            }`}
+                : "border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              }`}
           >
             {focusMode ? "🎯 Focused" : "🎯 Focus"}
           </button>
           <button
             onClick={handleClearDone}
-            className="text-xs text-[#666] hover:text-red-400 transition px-3 py-1.5 border border-[#2a2a2f] rounded-lg"
+            className="text-xs text-[var(--text-secondary)] hover:text-red-400 transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg"
           >
             🗑️ Clear Done
           </button>
 
           <button
             onClick={handleLogoutAll}
-            className="text-xs text-[#666] hover:text-red-400 transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg"
+            className="text-xs text-[var(--text-secondary)] hover:text-red-400 transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg"
           >
             🔐 Logout All
           </button>
@@ -270,14 +277,16 @@ const Dashboard = () => {
             onClick={() => setShowHelp((v) => !v)}
             aria-label="Keyboard shortcuts help"
             title="Keyboard shortcuts (?)"
-            className="text-xs text-[#666] hover:text-[#aaa] px-2 py-1 border border-[#2a2a2f] rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition"
+            className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-muted)] px-2 py-1 border border-[var(--border-primary)] rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition"
           >
             ⌨️ ?
           </button>
-
+          <span className="text-xs text-[var(--text-secondary)]">
+            {isNight ? "🌙 Night mode" : "☀️ Day mode"}
+          </span>
           <button
             onClick={handleLogout}
-            className="text-xs text-[#666] hover:text-[#aaa] transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg"
+            className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition px-3 py-1.5 border border-[var(--border-primary)] rounded-lg"
           >
             Logout
           </button>
@@ -301,10 +310,10 @@ const Dashboard = () => {
         {tasks.length === 0 ? (
           <div className="flex-1 h-full flex flex-col items-center justify-center text-center p-8">
             <span className="text-6xl mb-4">👋</span>
-            <h2 className="text-2xl font-semibold text-[#f0f0f0] mb-2">
+            <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-2">
               Welcome to your board!
             </h2>
-            <p className="text-[#a0a0a5] mb-6 max-w-md">
+            <p className="text-[var(--text-tertiary)] mb-6 max-w-md">
               You don't have any tasks yet. Click + Add card to create your
               first one.
             </p>
@@ -370,12 +379,12 @@ const Dashboard = () => {
         >
           <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl w-full max-w-sm shadow-2xl">
             <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-primary)]">
-              <h2 className="font-semibold text-[#f0f0f0] text-sm">
+              <h2 className="font-semibold text-[var(--text-primary)] text-sm">
                 Keyboard Shortcuts
               </h2>
               <button
                 onClick={() => setShowHelp(false)}
-                className="text-[#666] hover:text-[#aaa] text-xl leading-none"
+                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xl leading-none"
                 aria-label="Close"
               >
                 ✕
@@ -383,20 +392,20 @@ const Dashboard = () => {
             </div>
             <div className="p-5 flex flex-col gap-3 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-[#a0a0a5]">New task</span>
-                <kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[#f0f0f0]">
+                <span className="text-[var(--text-tertiary)]">New task</span>
+                <kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[var(--text-primary)]">
                   N
                 </kbd>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#a0a0a5]">Close modal</span>
-                <kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[#f0f0f0]">
+                <span className="text-[var(--text-tertiary)]">Close modal</span>
+                <kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[var(--text-primary)]">
                   ESC
                 </kbd>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#a0a0a5]">Toggle this menu</span>
-                <kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[#f0f0f0]">
+                <span className="text-[var(--text-tertiary)]">Toggle this menu</span>
+                <kbd className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded px-1.5 py-0.5 font-mono text-xs text-[var(--text-primary)]">
                   ?
                 </kbd>
               </div>

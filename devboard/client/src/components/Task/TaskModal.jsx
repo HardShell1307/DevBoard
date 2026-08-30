@@ -217,12 +217,12 @@ const TaskModal = ({
     >
       <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl w-full max-w-lg shadow-2xl">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-primary)]">
-          <h2 className="font-semibold text-[#f0f0f0]">
+          <h2 className="font-semibold text-[var(--text-primary)]">
             {mode === "create" ? "New Task" : "Edit Task"}
           </h2>
           <button
             onClick={handleClose}
-            className="text-[#666] hover:text-[#aaa] text-xl"
+            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xl"
           >
             ✕
           </button>
@@ -239,16 +239,16 @@ const TaskModal = ({
               setForm({ ...form, title: e.target.value });
               if (aiError) setAiError("");
             }}
-            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-purple-500"
           />
-          <div className="text-xs text-[#555] text-right -mt-2">
+          <div className="text-xs text-[var(--text-muted)]] text-right -mt-2">
             {form.title.length}/{TITLE_MAX_LENGTH}
           </div>
 
           {/* Description Section with ✨ AI Button */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs text-[#888]">Description</label>
+              <label className="text-xs text-[var(--text-secondary)]">Description</label>
               <button
                 type="button"
                 onClick={handleGenerateAI}
@@ -266,10 +266,10 @@ const TaskModal = ({
                 setForm({ ...form, description: e.target.value })
               }
               rows={3}
-              className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500 resize-none"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-purple-500 resize-none"
             />
 
-            <p className="text-[10px] text-[#666] mt-1">
+            <p className="text-[10px] text-[var(--text-secondary)] mt-1">
               {form.description.trim().split(/\s+/).filter(Boolean).length} word
               {form.description.trim().split(/\s+/).filter(Boolean).length !== 1
                 ? "s"
@@ -283,7 +283,7 @@ const TaskModal = ({
             <select
               value={form.status}
               onChange={(e) => setForm({ ...form, status: e.target.value })}
-              className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] focus:outline-none focus:border-purple-500"
+              className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-purple-500"
             >
               <option value="backlog">Backlog</option>
               <option value="inprogress">In Progress</option>
@@ -294,7 +294,7 @@ const TaskModal = ({
             <select
               value={form.priority}
               onChange={(e) => setForm({ ...form, priority: e.target.value })}
-              className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] focus:outline-none focus:border-purple-500"
+              className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-purple-500"
             >
               <option value="low">Low Priority</option>
               <option value="medium">Medium Priority</option>
@@ -303,7 +303,7 @@ const TaskModal = ({
           </div>
 
           <div>
-            <label className="text-xs text-[#888] mb-1.5 block">
+            <label className="text-xs text-[var(--text-secondary)] mb-1.5 block">
               Label color
             </label>
             <div className="flex items-center gap-2">
@@ -328,7 +328,7 @@ const TaskModal = ({
             placeholder="Tags (comma separated: react, api, bug)"
             value={form.tags}
             onChange={(e) => setForm({ ...form, tags: e.target.value })}
-            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-purple-500"
           />
 
           <div className="flex gap-2">
@@ -339,7 +339,7 @@ const TaskModal = ({
               onChange={(e) =>
                 setForm({ ...form, githubIssueUrl: e.target.value })
               }
-              className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+              className="flex-1 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-purple-500"
             />
             <input
               type="number"
@@ -348,7 +348,7 @@ const TaskModal = ({
               onChange={(e) =>
                 setForm({ ...form, githubIssueNumber: e.target.value })
               }
-              className="w-16 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+              className="w-16 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-purple-500"
             />
           </div>
 
@@ -356,9 +356,9 @@ const TaskModal = ({
           {task?.snippets?.map((snippet, index) => (
             <div
               key={index}
-              className="flex items-center justify-between bg-[#0f0f10] rounded-lg px-3 py-2 mb-2"
+              className="flex items-center justify-between bg-[var(--bg-primary)] rounded-lg px-3 py-2 mb-2"
             >
-              <span className="text-xs font-mono text-[#888]">
+              <span className="text-xs font-mono text-[var(--text-secondary)]">
                 {snippet.language} snippet
               </span>
               <button
@@ -373,12 +373,12 @@ const TaskModal = ({
            {/* Activity Log */}
           {task?.activity?.length > 0 && (
             <div className="border border-[var(--border-primary)] rounded-lg px-3 py-2">
-              <span className="text-xs text-[#888] block mb-1.5">📜 Recent activity</span>
+              <span className="text-xs text-[var(--text-secondary)] block mb-1.5">📜 Recent activity</span>
               <ul className="flex flex-col gap-1">
                 {task.activity.slice(-3).reverse().map((a, i) => (
-                  <li key={i} className="text-xs text-[#a0a0a0] flex justify-between">
+                  <li key={i} className="text-xs text-[var(--text-muted)] flex justify-between">
                     <span>{a.action}</span>
-                    <span className="text-[#666]">{timeAgo(a.timestamp)}</span>
+                    <span className="text-[var(--text-secondary)]">{timeAgo(a.timestamp)}</span>
                   </li>
                 ))}
               </ul>
@@ -389,11 +389,11 @@ const TaskModal = ({
           {/* Add Code Snippet */}
           <div className="border border-[var(--border-primary)] rounded-lg overflow-hidden">
             <div className="flex items-center justify-between px-3 py-2 bg-[var(--bg-primary)] border-b border-[var(--border-primary)]">
-              <span className="text-xs text-[#888]">{"</>"} Code Snippet</span>
+              <span className="text-xs text-[var(--text-secondary)]">{"</>"} Code Snippet</span>
               <select
                 value={snippetLang}
                 onChange={(e) => setSnippetLang(e.target.value)}
-                className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded text-xs text-[#888] px-2 py-1 focus:outline-none"
+                className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded text-xs text-[var(--text-secondary)] px-2 py-1 focus:outline-none"
               >
                 {[
                   "javascript",
@@ -416,20 +416,20 @@ const TaskModal = ({
               value={snippetCode}
               onChange={(e) => setSnippetCode(e.target.value)}
               rows={4}
-              className="w-full bg-[var(--bg-primary)] px-3 py-2 text-xs font-mono text-[#a0a0a0] placeholder-[#444] focus:outline-none resize-none"
+              className="w-full bg-[var(--bg-primary)] px-3 py-2 text-xs font-mono text-[var(--text-muted)] placeholder-[var(--text-muted)] focus:outline-none resize-none"
             />
           </div>
           <input
             type="date"
             value={form.dueDate}
             onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] focus:outline-none focus:border-purple-500"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-purple-500"
           />
           
           <select
             value={form.estimate || ''}
             onChange={(e) => setForm({ ...form, estimate: e.target.value })}
-            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[#f0f0f0] focus:outline-none focus:border-purple-500"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-purple-500"
           >
             <option value="">No estimate</option>
             <option value="30m">30 minutes</option>
@@ -446,7 +446,7 @@ const TaskModal = ({
               <button
                 onClick={handleExportJSON}
                 title="Export as JSON"
-                className="p-2 text-sm text-[#888] hover:text-[#aaa] hover:bg-white/5 rounded-lg transition outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
+                className="p-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5 rounded-lg transition outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
               >
                 📤
               </button>
@@ -456,7 +456,7 @@ const TaskModal = ({
                 onClick={handleDuplicate}
                 disabled={duplicating || !form.title.trim()}
                 title="Duplicate task"
-                className="p-2 text-sm text-[#888] hover:text-[#aaa] hover:bg-white/5 rounded-lg transition outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50 disabled:opacity-40"
+                className="p-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5 rounded-lg transition outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50 disabled:opacity-40"
               >
                 📄
               </button>
@@ -470,7 +470,7 @@ const TaskModal = ({
                   toast.success("Share link copied to clipboard");
                 }}
                 title="Copy share link"
-                className="p-2 text-sm text-[#888] hover:text-[#aaa] hover:bg-white/5 rounded-lg transition outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
+                className="p-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5 rounded-lg transition outline-none focus-visible:ring-2 focus-visible:ring-purple-500/50"
               >
                 🔗
               </button>
@@ -480,13 +480,13 @@ const TaskModal = ({
           <div className="flex items-center flex-wrap justify-end gap-2">
           <button
             onClick={handleClose}
-            className="shrink-0 whitespace-nowrap px-4 py-2 text-sm text-[#888] hover:text-[#aaa] transition"
+            className="shrink-0 whitespace-nowrap px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition"
           >
             Cancel
           </button>
           {confirmDelete ? (
             <div className="shrink-0 flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-lg pl-3 pr-1.5 py-1.5">
-              <span className="text-xs text-[#aaa] whitespace-nowrap">You sure? 👀</span>
+              <span className="text-xs text-[var(--text-secondary)] whitespace-nowrap">You sure? 👀</span>
               <button
                 onClick={async () => {
                   await deleteTask(task._id);
@@ -498,7 +498,7 @@ const TaskModal = ({
               </button>
               <button
                 onClick={() => setConfirmDelete(false)}
-                className="text-xs text-[#888] hover:text-[#aaa] hover:bg-white/5 px-2 py-1 rounded-md transition whitespace-nowrap"
+                className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5 px-2 py-1 rounded-md transition whitespace-nowrap"
               >
                 nvm
               </button>
@@ -529,16 +529,16 @@ const TaskModal = ({
       {confirmClose && (
         <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-xl p-6 max-w-sm shadow-2xl">
-            <h3 className="text-lg font-semibold text-[#f0f0f0] mb-2">
+            <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
               Unsaved Changes
             </h3>
-            <p className="text-sm text-[#888] mb-4">
+            <p className="text-sm text-[var(--text-secondary)] mb-4">
               You have unsaved changes. Are you sure you want to discard them?
             </p>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmClose(false)}
-                className="px-4 py-2 text-sm text-[#888] hover:text-[#aaa] transition"
+                className="px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition"
               >
                 Keep Editing
               </button>

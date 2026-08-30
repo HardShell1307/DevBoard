@@ -84,13 +84,13 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f0f10] via-[#1a1020] to-[#0f0f10] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[var(--bg-primary)] via-[var(--bg-accent)] to-[var(--bg-primary)] flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute w-72 h-72 bg-purple-600/10 rounded-full blur-3xl top-1/4 left-1/2 -translate-x-1/2" />
       <div className="w-full max-w-sm relative">
         <div className="text-center mb-8">
           <div className="text-4xl mb-2">🗂️</div>
-          <h1 className="text-2xl font-bold text-[#f0f0f0]">DevBoard</h1>
-          <p className="text-[#666] text-sm mt-1">
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">DevBoard</h1>
+          <p className="text-[var(--text-secondary)] text-sm mt-1">
             Kanban built for developers
           </p>
         </div>
@@ -106,7 +106,7 @@ const Login = () => {
               placeholder="Your name *"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2.5 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-purple-500"
             />
           )}
 
@@ -115,7 +115,7 @@ const Login = () => {
             placeholder="Email *"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2.5 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-purple-500"
           />
 
           <div className="relative">
@@ -125,7 +125,7 @@ const Login = () => {
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-              className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2.5 pr-10 text-sm text-[#f0f0f0] placeholder-[#555] focus:outline-none focus:border-purple-500"
+              className="w-full bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg px-3 py-2.5 pr-10 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-purple-500"
             />
             <button
               type="button"
@@ -178,7 +178,7 @@ const Login = () => {
           </button>
 
           {isRegister && (
-            <p className="text-[10px] text-[#555] text-center leading-snug">
+            <p className="text-[10px] text-[var(--text-muted)] text-center leading-snug">
               By creating an account you agree to our{" "}
               <a href="#" className="text-purple-400 hover:underline">
                 Terms of Service
@@ -189,7 +189,7 @@ const Login = () => {
           <button
             type="button"
             onClick={toggleMode}
-            className="text-xs text-[#666] hover:text-[#aaa] transition text-center mt-1"
+            className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition text-center mt-1"
           >
             {isRegister
               ? "Already have an account? Sign in"

@@ -22,7 +22,7 @@ const NotFound = () => {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-[var(--bg-primary)] text-center p-8">
       <span className="text-6xl mb-4 animate-bounce">🗂️</span>
-      <h2 className="text-3xl font-bold text-[#f0f0f0] mb-3">
+      <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-3">
           Lost in the backlog?
    </h2>
 

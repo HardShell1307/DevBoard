@@ -236,10 +236,10 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFi
               <div className="text-6xl animate-bounce mb-4">
                 🗂️
               </div>
-              <h2 className="text-lg font-semibold text-[#f0f0f0] mb-2">
+              <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
                 Your board is empty!
               </h2>
-              <p className="text-sm text-[#555] mb-6">
+              <p className="text-sm text-[var(--text-muted)] mb-6">
                 Create your first task to get started
               </p>
               <button
