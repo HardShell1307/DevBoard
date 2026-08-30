@@ -1,19 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import TaskCard from "./TaskCard";
-
-// Collapse state is per column and purely local — no backend involved.
-const collapsedKey = (columnId) => `column_collapsed_${columnId}`;
-
-const readCollapsed = (columnId) => {
-  try {
-    return localStorage.getItem(collapsedKey(columnId)) === "true";
-  } catch {
-    // Storage can be unavailable (private mode, blocked cookies) — the column
-    // simply starts expanded then.
-    return false;
-  }
-};
+import { useBoard } from "../../context/BoardContext";
 
 const COLUMN_CONFIG = {
   backlog: { label: "Backlog", color: "#888", dot: "bg-gray-500" },
@@ -22,13 +10,17 @@ const COLUMN_CONFIG = {
   done: { label: "Done", color: "#639922", dot: "bg-green-500" },
 };
 
+const WIP_LIMIT = 5;
+
 const Column = ({
   columnId,
   tasks,
   onSelectTask,
   onAddTask,
   isActive,
+  columns = [],
 }) => {
+  const { tasks: allTasks, updateTask } = useBoard();
   const [sorted, setSorted] = useState(false);
   const [pinnedIds, setPinnedIds] = useState(() => {
     try {
@@ -65,12 +57,85 @@ const Column = ({
   };
 
   useEffect(() => {
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [pinnedIds, setPinnedIds] = useState(() => {
     try {
-      localStorage.setItem(collapsedKey(columnId), String(collapsed));
+      return new Set(
+        tasks
+          .filter((task) => localStorage.getItem(`pin_${task._id}`) === "true")
+          .map((task) => task._id)
+      );
     } catch {
-      // Not being able to remember it is not worth breaking the board over.
+      return new Set();
     }
-  }, [collapsed, columnId]);
+  });
+  const [animate, setAnimate] = useState(false);
+  const handlePin = (id) => {
+    setPinnedIds((prev) => {
+      const next = new Set(prev);
+      const nowPinned = !next.has(id);
+
+      if (nowPinned) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+
+      try {
+        localStorage.setItem(`pin_${id}`, String(nowPinned));
+      } catch {
+        // Not being able to remember the pin is not worth breaking the board over.
+      }
+
+      return next;
+    });
+  };
+
+  const toggleSelectionMode = () => {
+    if (selectionMode) setSelectedIds(new Set());
+    setSelectionMode((value) => !value);
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+
+      return next;
+    });
+  };
+
+  const handleMoveTo = async (target) => {
+    if (!selectionMode || selectedIds.size === 0 || target === columnId) {
+      return;
+    }
+
+    const targetTasks = allTasks.filter(
+      (task) => String(task.status) === String(target),
+    );
+    let base = targetTasks.reduce(
+      (max, task) => Math.max(max, Number(task.order) || 0),
+      -1,
+    );
+
+    const updates = [...selectedIds].map((id) => {
+      const task = allTasks.find((t) => String(t._id) === String(id));
+      if (!task) return null;
+
+      base += 1;
+      return updateTask(String(task._id), { status: target, order: base });
+    });
+
+    await Promise.all(updates);
+    setSelectedIds(new Set());
+    setSelectionMode(false);
+  };
 
   useEffect(() => {
     setAnimate(true);
@@ -100,6 +165,8 @@ const Column = ({
       color: "#888",
     };
 
+  const isOverLimit = columnId === "inprogress" && tasks.length > WIP_LIMIT;
+
   return (
     <div
       className={`flex flex-col w-full md:w-56 flex-shrink-0 rounded-lg transition-all ${isActive
@@ -119,8 +186,38 @@ const Column = ({
           >
             {collapsed ? "▶" : "▼"}
           </button>
+        {selectionMode ? (
+          <>
+            <button
+              type="button"
+              onClick={toggleSelectionMode}
+              title="Exit selection mode"
+              className="text-[10px] text-purple-400 hover:text-purple-300 transition"
+            >
+              ☑ Exit Select mode
+            </button>
 
-          <span className={`w-2 h-2 rounded-full ${config.dot}`} />
+            <select
+              defaultValue=""
+              onChange={(e) => handleMoveTo(e.target.value)}
+              className="text-[10px] bg-[var(--bg-input)] border border-[var(--border-primary)] text-[#888] rounded px-1 py-0.5 focus:border-purple-500 focus:outline-none"
+            >
+              <option value="" disabled>
+                Move to…
+              </option>
+              {columns
+                .filter((col) => col !== columnId)
+                .map((col) => (
+                  <option key={col} value={col}>
+                    {COLUMN_CONFIG[col]?.label ?? col}
+                  </option>
+                ))}
+            </select>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${config.dot}`} />
 
           <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
             {config.label}
@@ -142,8 +239,47 @@ const Column = ({
           >
             {sorted ? "🔃 sorted" : "🔃 sort"}
           </button>
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#888]">
+                {config.label}
+              </span>
+
+              <span
+                className={`text-[10px] bg-[var(--border-primary)] text-[#666] px-1.5 py-0.5 rounded-full transition-transform duration-300 ${animate ? "scale-125" : "scale-100"
+                  }`}
+              >
+                {tasks.length}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {tasks.length >= 1 && (
+                <button
+                  type="button"
+                  onClick={toggleSelectionMode}
+                  title="Select tasks to move"
+                  className="text-[10px] text-[#555] hover:text-purple-400 transition"
+                >
+                  ☑ Select
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setSorted((value) => !value)}
+                className="text-[10px] text-[#555] hover:text-purple-400 transition"
+              >
+                {sorted ? "🔃 sorted" : "🔃 sort"}
+              </button>
+            </div>
+          </>
         )}
       </div>
+
+      {/* WIP limit warning */}
+      {isOverLimit && (
+        <div className="mb-2 px-2 py-1.5 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md">
+          ⚠️ WIP limit exceeded! ({tasks.length}/{WIP_LIMIT})
+        </div>
+      )}
 
       {/* Droppable cards area */}
       <Droppable droppableId={columnId}>
@@ -152,7 +288,7 @@ const Column = ({
             ref={provided.innerRef}
             {...provided.droppableProps}
             className={`flex flex-col gap-2 rounded-lg p-1 transition-colors
-              ${collapsed ? "min-h-[40px]" : "flex-1 min-h-[80px]"}
+              flex-1 min-h-[80px]
               ${snapshot.isDraggingOver ? "bg-purple-500/5" : ""}`}
           >
             {collapsed ? (
@@ -172,6 +308,9 @@ const Column = ({
                   onSelect={onSelectTask}
                   pinned={pinnedIds.has(task._id)}
                   onPin={handlePin}
+                  selectionMode={selectionMode}
+                  selected={selectedIds.has(task._id)}
+                  onToggleSelect={toggleSelect}
                 />
               ))
             )}

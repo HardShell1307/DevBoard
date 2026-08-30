@@ -66,7 +66,16 @@ const timeAgo = (date) => {
   return `${days}d ago`;
 };
 
-const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
+const TaskCard = ({
+  task,
+  index,
+  onSelect,
+  pinned,
+  onPin,
+  selectionMode = false,
+  selected = false,
+  onToggleSelect,
+}) => {
   const [expanded, setExpanded] = useState(false);
   const [selectedSnippet, setSelectedSnippet] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -151,7 +160,9 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
           }}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          onClick={() => onSelect(task)}
+          onClick={() =>
+            selectionMode ? onToggleSelect(task._id) : onSelect(task)
+          }
           onContextMenu={handleContextMenu}
           style={{
             ...provided.draggableProps.style,
@@ -167,6 +178,23 @@ const TaskCard = ({ task, index, onSelect, pinned, onPin }) => {
           {/* Title */}
           <div className="flex items-start justify-between gap-2 mb-2">
             <p className="text-sm font-medium text-[var(--text-primary)] leading-snug min-w-0 break-words">
+            ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : selected
+              ? "border-purple-500" : isOverdue
+              ? "border-red-500 border-l-4 hover:border-red-400" : "border-[var(--border-primary)] hover:border-[#444]"}`}
+        >
+          {/* Title */}
+          <div className="flex items-start justify-between gap-2 mb-2">
+            {selectionMode && (
+              <input
+                type="checkbox"
+                checked={selected}
+                onChange={() => onToggleSelect(task._id)}
+                onClick={(e) => e.stopPropagation()}
+                className="accent-purple-500 shrink-0 mt-0.5 cursor-pointer"
+              />
+            )}
+
+            <p className="text-sm font-medium text-[#f0f0f0] leading-snug min-w-0 break-words">
               {highlightMatch(task.title, searchQuery)}
             </p>
 
