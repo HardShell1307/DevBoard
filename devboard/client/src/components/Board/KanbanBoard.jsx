@@ -261,6 +261,7 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFi
                   onSelectTask={onSelectTask}
                   onAddTask={handleAddTask}
                   isActive={columns.indexOf(col) === activeCol}
+                  columns={columns}
                 />
               ))}
               <button
