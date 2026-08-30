@@ -8,7 +8,7 @@ import confetti from "canvas-confetti";
 const COLUMNS = ["backlog", "inprogress", "review", "done"];
 
 
-const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFilter = "all" }) => {
+const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFilter = "all", focusMode = false }) => {
 
   const { tasks, updateTask, addTask, loading } = useBoard();
   const displayedTasks = filteredTasks ?? tasks;
@@ -50,7 +50,11 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFi
 
   
 
-  const isEmpty = COLUMNS.every(col => getTasksByStatus(col).length === 0);
+  const visibleColumns = focusMode
+    ? columns.filter((col) => col.toLowerCase() !== "done")
+    : columns;
+
+  const isEmpty = visibleColumns.every(col => getTasksByStatus(col).length === 0);
   const totalTasks = tasks.length;
   const playDoneSound = () => {
     const AudioContextClass =
