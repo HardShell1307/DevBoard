@@ -32,8 +32,39 @@ const Column = ({
   isActive,
 }) => {
   const [sorted, setSorted] = useState(false);
+  const [pinnedIds, setPinnedIds] = useState(() => {
+    try {
+      return new Set(
+        tasks
+          .filter((task) => localStorage.getItem(`pin_${task._id}`) === "true")
+          .map((task) => task._id)
+      );
+    } catch {
+      return new Set();
+    }
+  });
   const [animate, setAnimate] = useState(false);
   const [collapsed, setCollapsed] = useState(() => readCollapsed(columnId));
+  const handlePin = (id) => {
+    setPinnedIds((prev) => {
+      const next = new Set(prev);
+      const nowPinned = !next.has(id);
+
+      if (nowPinned) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+
+      try {
+        localStorage.setItem(`pin_${id}`, String(nowPinned));
+      } catch {
+        // Not being able to remember the pin is not worth breaking the board over.
+      }
+
+      return next;
+    });
+  };
 
   useEffect(() => {
     try {
@@ -51,13 +82,18 @@ const Column = ({
     return () => clearTimeout(timeout);
   }, [tasks.length]);
 
-  const displayTasks = sorted
+  const displayTasks = (sorted
     ? [...tasks].sort((a, b) => {
       const order = { high: 0, medium: 1, low: 2 };
 
       return (order[a.priority] ?? 3) - (order[b.priority] ?? 3);
     })
-    : tasks;
+    : [...tasks]
+  ).sort(
+    (a, b) =>
+      (pinnedIds.has(b._id) ? 1 : 0) -
+      (pinnedIds.has(a._id) ? 1 : 0)
+  );
 
   const config =
     COLUMN_CONFIG[columnId] || {
@@ -145,6 +181,8 @@ const Column = ({
                   task={task}
                   index={index}
                   onSelect={onSelectTask}
+                  pinned={pinnedIds.has(task._id)}
+                  onPin={handlePin}
                 />
               ))
             )}
