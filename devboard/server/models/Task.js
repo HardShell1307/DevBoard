@@ -30,6 +30,12 @@ const taskSchema = new mongoose.Schema(
     order: { type: Number, default: 0 },
     project: { type: mongoose.Schema.Types.ObjectId, ref: "Project" },
     estimate: { type: String, default: '' },
+    reactions: [{
+      emoji: String,
+      count: { type: Number, default: 1 },
+      users: [{ type: mongoose.Schema.Types.ObjectId,
+      ref: 'User' }]
+    }]
     activity: [
       {
         action: String,
