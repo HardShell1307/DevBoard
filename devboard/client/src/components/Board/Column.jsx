@@ -5,7 +5,7 @@ import { useBoard } from "../../context/BoardContext";
 
 const COLUMN_CONFIG = {
   backlog: { label: "Backlog", color: "#888", dot: "bg-gray-500" },
-  inprogress: { label: "In Progress", color: "#7F77DD", dot: "bg-purple-500", },
+  inprogress: { label: "In Progress", color: "#7F77DD", dot: "bg-purple-500" },
   review: { label: "Review", color: "#EF9F27", dot: "bg-yellow-500" },
   done: { label: "Done", color: "#639922", dot: "bg-green-500" },
 };
@@ -21,44 +21,14 @@ const Column = ({
   columns = [],
 }) => {
   const { tasks: allTasks, updateTask } = useBoard();
+  
+  // Cleaned up State - No duplicates, no states inside useEffects
   const [sorted, setSorted] = useState(false);
-  const [pinnedIds, setPinnedIds] = useState(() => {
-    try {
-      return new Set(
-        tasks
-          .filter((task) => localStorage.getItem(`pin_${task._id}`) === "true")
-          .map((task) => task._id)
-      );
-    } catch {
-      return new Set();
-    }
-  });
-  const [animate, setAnimate] = useState(false);
-  const [collapsed, setCollapsed] = useState(() => readCollapsed(columnId));
-  const handlePin = (id) => {
-    setPinnedIds((prev) => {
-      const next = new Set(prev);
-      const nowPinned = !next.has(id);
-
-      if (nowPinned) {
-        next.add(id);
-      } else {
-        next.delete(id);
-      }
-
-      try {
-        localStorage.setItem(`pin_${id}`, String(nowPinned));
-      } catch {
-        // Not being able to remember the pin is not worth breaking the board over.
-      }
-
-      return next;
-    });
-  };
-
-  useEffect(() => {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [animate, setAnimate] = useState(false);
+  const [collapsed, setCollapsed] = useState(false); // Replaced missing readCollapsed function
+
   const [pinnedIds, setPinnedIds] = useState(() => {
     try {
       return new Set(
@@ -70,24 +40,21 @@ const Column = ({
       return new Set();
     }
   });
-  const [animate, setAnimate] = useState(false);
+
   const handlePin = (id) => {
     setPinnedIds((prev) => {
       const next = new Set(prev);
       const nowPinned = !next.has(id);
-
       if (nowPinned) {
         next.add(id);
       } else {
         next.delete(id);
       }
-
       try {
         localStorage.setItem(`pin_${id}`, String(nowPinned));
       } catch {
-        // Not being able to remember the pin is not worth breaking the board over.
+        // Ignore
       }
-
       return next;
     });
   };
@@ -100,34 +67,24 @@ const Column = ({
   const toggleSelect = (id) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-
       if (next.has(id)) {
         next.delete(id);
       } else {
         next.add(id);
       }
-
       return next;
     });
   };
 
   const handleMoveTo = async (target) => {
-    if (!selectionMode || selectedIds.size === 0 || target === columnId) {
-      return;
-    }
+    if (!selectionMode || selectedIds.size === 0 || target === columnId) return;
 
-    const targetTasks = allTasks.filter(
-      (task) => String(task.status) === String(target),
-    );
-    let base = targetTasks.reduce(
-      (max, task) => Math.max(max, Number(task.order) || 0),
-      -1,
-    );
+    const targetTasks = allTasks.filter((task) => String(task.status) === String(target));
+    let base = targetTasks.reduce((max, task) => Math.max(max, Number(task.order) || 0), -1);
 
     const updates = [...selectedIds].map((id) => {
       const task = allTasks.find((t) => String(t._id) === String(id));
       if (!task) return null;
-
       base += 1;
       return updateTask(String(task._id), { status: target, order: base });
     });
@@ -139,43 +96,39 @@ const Column = ({
 
   useEffect(() => {
     setAnimate(true);
-
     const timeout = setTimeout(() => setAnimate(false), 300);
-
     return () => clearTimeout(timeout);
   }, [tasks.length]);
 
   const displayTasks = (sorted
     ? [...tasks].sort((a, b) => {
       const order = { high: 0, medium: 1, low: 2 };
-
       return (order[a.priority] ?? 3) - (order[b.priority] ?? 3);
     })
     : [...tasks]
   ).sort(
-    (a, b) =>
-      (pinnedIds.has(b._id) ? 1 : 0) -
-      (pinnedIds.has(a._id) ? 1 : 0)
+    (a, b) => (pinnedIds.has(b._id) ? 1 : 0) - (pinnedIds.has(a._id) ? 1 : 0)
   );
 
-  const config =
-    COLUMN_CONFIG[columnId] || {
-      label: columnId,
-      dot: "bg-gray-500",
-      color: "#888",
-    };
+  const config = COLUMN_CONFIG[columnId] || {
+    label: columnId,
+    dot: "bg-gray-500",
+    color: "#888",
+  };
 
   const isOverLimit = columnId === "inprogress" && tasks.length > WIP_LIMIT;
 
   return (
     <div
       className={`flex flex-col w-full md:w-56 flex-shrink-0 rounded-lg transition-all ${isActive
-        ? "border border-purple-500/60 shadow-[0_0_12px_rgba(139,92,246,0.25)]"
-        : "border border-transparent"
+          ? "border border-purple-500/60 shadow-[0_0_12px_rgba(139,92,246,0.25)]"
+          : "border border-transparent"
         }`}
     >
-      {/* Header */}
+      {/* Cleaned up Header with Fixed JSX nesting */}
       <div className="flex items-center justify-between mb-3 px-1">
+        
+        {/* Left Side: Collapse Button + Title/Select Mode */}
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -186,91 +139,71 @@ const Column = ({
           >
             {collapsed ? "▶" : "▼"}
           </button>
-        {selectionMode ? (
-          <>
-            <button
-              type="button"
-              onClick={toggleSelectionMode}
-              title="Exit selection mode"
-              className="text-[10px] text-purple-400 hover:text-purple-300 transition"
-            >
-              ☑ Exit Select mode
-            </button>
 
-            <select
-              defaultValue=""
-              onChange={(e) => handleMoveTo(e.target.value)}
-              className="text-[10px] bg-[var(--bg-input)] border border-[var(--border-primary)] text-[#888] rounded px-1 py-0.5 focus:border-purple-500 focus:outline-none"
-            >
-              <option value="" disabled>
-                Move to…
-              </option>
-              {columns
-                .filter((col) => col !== columnId)
-                .map((col) => (
-                  <option key={col} value={col}>
-                    {COLUMN_CONFIG[col]?.label ?? col}
-                  </option>
-                ))}
-            </select>
-          </>
-        ) : (
-          <>
+          {selectionMode ? (
+            <>
+              <button
+                type="button"
+                onClick={toggleSelectionMode}
+                title="Exit selection mode"
+                className="text-[10px] text-purple-400 hover:text-purple-300 transition"
+              >
+                ☑ Exit Select mode
+              </button>
+
+              <select
+                defaultValue=""
+                onChange={(e) => handleMoveTo(e.target.value)}
+                className="text-[10px] bg-[var(--bg-input)] border border-[var(--border-primary)] text-[#888] rounded px-1 py-0.5 focus:border-purple-500 focus:outline-none"
+              >
+                <option value="" disabled>
+                  Move to…
+                </option>
+                {columns
+                  .filter((col) => col !== columnId)
+                  .map((col) => (
+                    <option key={col} value={col}>
+                      {COLUMN_CONFIG[col]?.label ?? col}
+                    </option>
+                  ))}
+              </select>
+            </>
+          ) : (
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${config.dot}`} />
-
-          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
-            {config.label}
-          </span>
-
-          <span
-            className={`text-[10px] bg-[var(--border-primary)] text-[var(--text-secondary)] px-1.5 py-0.5 rounded-full transition-transform duration-300 ${animate ? "scale-125" : "scale-100"
-              }`}
-          >
-            {tasks.length}
-          </span>
-        </div>
-
-        {!collapsed && (
-          <button
-            type="button"
-            onClick={() => setSorted((value) => !value)}
-            className="text-[10px] text-[var(--text-muted)] hover:text-purple-400 transition"
-          >
-            {sorted ? "🔃 sorted" : "🔃 sort"}
-          </button>
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#888]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
                 {config.label}
               </span>
-
               <span
-                className={`text-[10px] bg-[var(--border-primary)] text-[#666] px-1.5 py-0.5 rounded-full transition-transform duration-300 ${animate ? "scale-125" : "scale-100"
-                  }`}
+                className={`text-[10px] bg-[var(--border-primary)] text-[var(--text-secondary)] px-1.5 py-0.5 rounded-full transition-transform duration-300 ${animate ? "scale-125" : "scale-100"}`}
               >
                 {tasks.length}
               </span>
             </div>
+          )}
+        </div>
 
-            <div className="flex items-center gap-2">
-              {tasks.length >= 1 && (
-                <button
-                  type="button"
-                  onClick={toggleSelectionMode}
-                  title="Select tasks to move"
-                  className="text-[10px] text-[#555] hover:text-purple-400 transition"
-                >
-                  ☑ Select
-                </button>
-              )}
+        {/* Right Side: Action Buttons */}
+        {!collapsed && !selectionMode && (
+          <div className="flex items-center gap-2">
+            {tasks.length >= 1 && (
               <button
                 type="button"
-                onClick={() => setSorted((value) => !value)}
+                onClick={toggleSelectionMode}
+                title="Select tasks to move"
                 className="text-[10px] text-[#555] hover:text-purple-400 transition"
               >
-                {sorted ? "🔃 sorted" : "🔃 sort"}
+                ☑ Select
               </button>
-            </div>
-          </>
+            )}
+            <button
+              type="button"
+              onClick={() => setSorted((value) => !value)}
+              className="text-[10px] text-[#555] hover:text-purple-400 transition"
+            >
+              {sorted ? "🔃 sorted" : "🔃 sort"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -314,7 +247,6 @@ const Column = ({
                 />
               ))
             )}
-
             {provided.placeholder}
           </div>
         )}

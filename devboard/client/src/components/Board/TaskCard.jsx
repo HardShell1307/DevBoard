@@ -122,6 +122,15 @@ const TaskCard = ({
     }
   };
 
+  const getTaskAge = (createdAt) => {
+  const days = Math.floor(
+    (Date.now() - new Date(createdAt)) / 86400000
+  );
+  return days;
+};
+
+const age = getTaskAge(task.createdAt);
+
   // Close the menu when clicking (or right-clicking) elsewhere
   useEffect(() => {
     if (!contextMenu) return;
@@ -175,13 +184,7 @@ const TaskCard = ({
             ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : isOverdue
               ? "border-red-500 border-l-4 hover:border-red-400" : "border-[var(--border-primary)] hover:border-[var(--border-hover)]"}`}
         >
-          {/* Title */}
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <p className="text-sm font-medium text-[var(--text-primary)] leading-snug min-w-0 break-words">
-            ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : selected
-              ? "border-purple-500" : isOverdue
-              ? "border-red-500 border-l-4 hover:border-red-400" : "border-[var(--border-primary)] hover:border-[#444]"}`}
-        >
+         
           {/* Title */}
           <div className="flex items-start justify-between gap-2 mb-2">
             {selectionMode && (
@@ -388,6 +391,12 @@ const TaskCard = ({
             <div className="mt-1 text-[10px] flex items-center gap-1.5 text-[var(--text-secondary)]">
               <span>⏱️ {task.estimate}</span>
             </div>
+          )}
+
+          {age >= 14 && task.status !== 'done' && (
+            <span className="mt-1 text-[10px] flex items-center gap-1.5 text-[var(--text-secondary)]"> 
+                🕰️ {age}d old
+            </span>
           )}
 
           {/* Footer */}
