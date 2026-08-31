@@ -35,7 +35,7 @@ const taskSchema = new mongoose.Schema(
       count: { type: Number, default: 1 },
       users: [{ type: mongoose.Schema.Types.ObjectId,
       ref: 'User' }]
-    }]
+    }],
     activity: [
       {
         action: String,
