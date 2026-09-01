@@ -71,6 +71,18 @@ const highlightMatch = (text, query) => {
   );
 };
 
+const estimateToPomodoros = (estimate) => {
+  const map = {
+    "30m": 1,
+    "1h": 2,
+    "2h": 4,
+    "4h": 8,
+    "1d": 16,
+  };
+
+  return map[estimate] || null;
+};
+
 const timeAgo = (date) => {
   const diff = Date.now() - new Date(date);
   const mins = Math.floor(diff / 60000);
@@ -146,6 +158,9 @@ const TaskCard = ({
 };
 
 const age = getTaskAge(task.createdAt);
+
+const estimatedPomodoros = estimateToPomodoros(task.estimate);
+const actualPomodoros = task.pomodoroCount || 0;
 
   // Close the menu when clicking (or right-clicking) elsewhere
   useEffect(() => {
@@ -418,7 +433,17 @@ const age = getTaskAge(task.createdAt);
           {/* Footer */}
           <div className="flex items-center justify-between mt-2">
             <div className="flex items-center gap-2 text-[var(--text-muted)] text-[10px]">
-              {task.pomodoroCount > 0 && <span>🍅 ×{task.pomodoroCount}</span>}
+              {estimatedPomodoros && (
+                <span
+                  className={
+                    actualPomodoros > estimatedPomodoros
+                      ? "text-red-400"
+                      : "text-green-400"
+                  }
+                >
+                  🍅 {actualPomodoros}/{estimatedPomodoros} sessions
+                </span>
+              )}
               {task.snippets?.length > 0 && (
                 <span>📎 {task.snippets.length}</span>
               )}
