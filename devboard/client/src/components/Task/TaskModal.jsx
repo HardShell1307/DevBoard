@@ -74,7 +74,7 @@ const TaskModal = ({
     setAiError("");
 
     try {
-      const res = await fetch("/api/ai/generate-description", {
+      const res = await fetch("/api/v1/ai/generate-description", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
