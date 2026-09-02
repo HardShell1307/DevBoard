@@ -49,7 +49,7 @@ export const BoardProvider = ({ children }) => {
 
     try {
       setLoading(true);
-      const { data } = await axios.get("/api/tasks", authHeaders());
+      const { data } = await axios.get("/api/v1/tasks", authHeaders());
       setAllTasks(data);
     } catch (err) {
       setError("Cannot connect to server. Please try again!");
@@ -95,7 +95,7 @@ export const BoardProvider = ({ children }) => {
 
   const addTask = async (taskData) => {
     try {
-      const { data } = await axios.post("/api/tasks", taskData, authHeaders());
+      const { data } = await axios.post("/api/v1/tasks", taskData, authHeaders());
       setAllTasks((prev) => [...prev, data]);
     } catch (err) {
       console.error("addTask failed", err);
@@ -111,7 +111,7 @@ export const BoardProvider = ({ children }) => {
   const updateTask = async (id, updates) => {
     try {
       const { data } = await axios.put(
-        `/api/tasks/${id}`,
+        `/api/v1/tasks/${id}`,
         updates,
         authHeaders(),
       );
@@ -124,7 +124,7 @@ export const BoardProvider = ({ children }) => {
 
   const deleteTask = async (id) => {
     try {
-      await axios.delete(`/api/tasks/${id}`, authHeaders());
+      await axios.delete(`/api/v1/tasks/${id}`, authHeaders());
       setAllTasks((prev) => prev.filter((t) => t._id !== id));
     } catch (err) {
       console.error("deleteTask failed:", err);
@@ -134,7 +134,7 @@ export const BoardProvider = ({ children }) => {
 
   const addSnippet = async (taskId, snippet) => {
     const { data } = await axios.post(
-      `/api/tasks/${taskId}/snippets`,
+      `/api/v1/tasks/${taskId}/snippets`,
       snippet,
       authHeaders(),
     );
@@ -160,7 +160,7 @@ export const BoardProvider = ({ children }) => {
 
   const logoutAll = async () => {
     try {
-      await axios.post("/api/auth/logout-all", {}, authHeaders());
+      await axios.post("/api/v1/auth/logout-all", {}, authHeaders());
       logout();
     } catch (err) {
       console.error("logoutAll failed:", err);
