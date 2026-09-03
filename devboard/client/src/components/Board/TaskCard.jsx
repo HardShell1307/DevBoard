@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Draggable } from "@hello-pangea/dnd";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { vscDarkPlus, vs } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useBoard } from "../../context/BoardContext";
 import { useSuggestTags } from "../../hooks/useSuggestTags";
 
@@ -29,6 +29,60 @@ const TAG_COLORS = [
 const getTagColor = (tag) =>
   TAG_COLORS[tag.charCodeAt(0) % TAG_COLORS.length];
 
+const AVATAR_COLORS = [
+  "bg-purple-700",
+  "bg-blue-600",
+  "bg-green-600",
+  "bg-rose-600",
+  "bg-amber-600",
+  "bg-teal-600",
+];
+
+// Sum every character so that names sharing a first letter still differ.
+const getAvatarColor = (name) => {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+};
+
+// Search terms are raw user input, so they have to be escaped before they can
+// be used as a pattern — searching for "(" would otherwise throw.
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// Wrap every occurrence of the active search term in a <mark> so it is visible
+// on the card itself why it survived the filter.
+const highlightMatch = (text, query) => {
+  const term = query?.trim();
+  if (!term || !text) return text;
+
+  const parts = String(text).split(new RegExp(`(${escapeRegExp(term)})`, "gi"));
+
+  return parts.map((part, i) =>
+    part.toLowerCase() === term.toLowerCase() ? (
+      <mark
+        key={i}
+        className="bg-purple-500/30 text-purple-300 rounded px-0.5"
+      >
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  );
+};
+
+const estimateToPomodoros = (estimate) => {
+  const map = {
+    "30m": 1,
+    "1h": 2,
+    "2h": 4,
+    "4h": 8,
+    "1d": 16,
+  };
+
+  return map[estimate] || null;
+};
+
 const timeAgo = (date) => {
   const diff = Date.now() - new Date(date);
   const mins = Math.floor(diff / 60000);
@@ -40,14 +94,26 @@ const timeAgo = (date) => {
   return `${days}d ago`;
 };
 
-const TaskCard = ({ task, index, onSelect }) => {
+const TaskCard = ({
+  task,
+  index,
+  onSelect,
+  pinned,
+  onPin,
+  selectionMode = false,
+  selected = false,
+  onToggleSelect,
+}) => {
   const [expanded, setExpanded] = useState(false);
   const [selectedSnippet, setSelectedSnippet] = useState(0);
   const [copied, setCopied] = useState(false);
   const [contextMenu, setContextMenu] = useState(null);
   const cardRef = useRef(null);
-  const { activeTag, setActiveTag, updateTask, deleteTask, addTask } = useBoard();
+  const { activeTag, setActiveTag, updateTask, deleteTask, addTask, searchQuery } = useBoard();
   const { suggestedTags, loadingTags, handleSuggestTags, handleAddTag } = useSuggestTags(task, selectedSnippet, updateTask);
+
+  // TODO: connect isDark to ThemeContext when light mode is implemented
+  const isDark = true;
 
   const handleCopy = (e) => {
     e.stopPropagation();
@@ -71,6 +137,7 @@ const TaskCard = ({ task, index, onSelect }) => {
         description: task.description,
         status: task.status,
         priority: task.priority,
+        labelColor: task.labelColor,
         tags: task.tags,
         snippets: task.snippets?.map(({ language, code }) => ({
           language,
@@ -82,6 +149,18 @@ const TaskCard = ({ task, index, onSelect }) => {
       console.error("Failed to duplicate task:", err);
     }
   };
+
+  const getTaskAge = (createdAt) => {
+  const days = Math.floor(
+    (Date.now() - new Date(createdAt)) / 86400000
+  );
+  return days;
+};
+
+const age = getTaskAge(task.createdAt);
+
+const estimatedPomodoros = estimateToPomodoros(task.estimate);
+const actualPomodoros = task.pomodoroCount || 0;
 
   // Close the menu when clicking (or right-clicking) elsewhere
   useEffect(() => {
@@ -121,17 +200,36 @@ const TaskCard = ({ task, index, onSelect }) => {
           }}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          onClick={() => onSelect(task)}
+          onClick={() =>
+            selectionMode ? onToggleSelect(task._id) : onSelect(task)
+          }
           onContextMenu={handleContextMenu}
-          className={`group bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
+          style={{
+            ...provided.draggableProps.style,
+            ...(task.labelColor
+              ? { borderLeft: `3px solid ${task.labelColor}` }
+              : {}),
+          }}
+          className={`card group bg-[var(--bg-card)] border rounded-lg p-3 cursor-pointer transition-all
             hover:shadow-lg ${GLOW[task.priority] || "hover:shadow-purple-500/20"}
             ${snapshot.isDragging ? "border-purple-500 shadow-lg shadow-purple-500/10" : isOverdue
-              ? "border-red-500 border-l-4 hover:border-red-400" : "border-[var(--border-primary)] hover:border-[#444]"}`}
+              ? "border-red-500 border-l-4 hover:border-red-400" : "border-[var(--border-primary)] hover:border-[var(--border-hover)]"}`}
         >
+
           {/* Title */}
           <div className="flex items-start justify-between gap-2 mb-2">
-            <p className="text-sm font-medium text-[#f0f0f0] leading-snug">
-              {task.title}
+            {selectionMode && (
+              <input
+                type="checkbox"
+                checked={selected}
+                onChange={() => onToggleSelect(task._id)}
+                onClick={(e) => e.stopPropagation()}
+                className="accent-purple-500 shrink-0 mt-0.5 cursor-pointer"
+              />
+            )}
+
+            <p className="text-sm font-medium text-[#f0f0f0] leading-snug min-w-0 break-words">
+              {highlightMatch(task.title, searchQuery)}
             </p>
 
             <button
@@ -143,6 +241,19 @@ const TaskCard = ({ task, index, onSelect }) => {
             >
               {copied ? "✅" : "📋"}
             </button>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPin(task._id);
+              }}
+              aria-label={pinned ? "Unpin task" : "Pin task"}
+              title={pinned ? "Unpin task" : "Pin task"}
+              className="shrink-0 text-xs"
+            >
+              {pinned ? "📌" : "📍"}
+            </button>
           </div>
 
           {/* GitHub issue link */}
@@ -152,7 +263,7 @@ const TaskCard = ({ task, index, onSelect }) => {
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 text-[10px] text-[#666] hover:text-purple-400 mb-2"
+              className="flex items-center gap-1 text-[10px] text-[var(--text-secondary)] hover:text-purple-400 mb-2"
             >
               <span>🔗</span> #{task.githubIssueNumber} GitHub Issue
             </a>
@@ -233,11 +344,15 @@ const TaskCard = ({ task, index, onSelect }) => {
                     </button>
                   </div>
 
+                  <div className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--border-primary)] text-[var(--text-secondary)] border border-[var(--border-primary)] w-fit mb-1.5">
+                    {task.snippets[selectedSnippet].language || "javascript"}
+                  </div>
+
                   <SyntaxHighlighter
                     language={
                       task.snippets[selectedSnippet].language || "javascript"
                     }
-                    style={vscDarkPlus}
+                    style={isDark ? vscDarkPlus : vs}
                     customStyle={{
                       fontSize: 10,
                       borderRadius: 6,
@@ -277,7 +392,10 @@ const TaskCard = ({ task, index, onSelect }) => {
                       : "hover:brightness-125"
                     }`}
                 >
-                  {t.length > 15 ? t.slice(0, 15) + "..." : t}
+                  {highlightMatch(
+                    t.length > 15 ? t.slice(0, 15) + "..." : t,
+                    searchQuery
+                  )}
                 </span>
               );
             })}
@@ -286,7 +404,7 @@ const TaskCard = ({ task, index, onSelect }) => {
           {/* Due date */}
           {task.dueDate && (
             <div
-              className={`mt-2 text-[10px] flex items-center gap-1.5 ${isOverdue ? "text-red-400" : "text-[#888]"
+              className={`mt-2 text-[10px] flex items-center gap-1.5 ${isOverdue ? "text-red-400" : "text-[var(--text-secondary)]"
                 }`}
             >
               <span>📅 {new Date(task.dueDate).toLocaleDateString()}</span>
@@ -300,11 +418,32 @@ const TaskCard = ({ task, index, onSelect }) => {
               )}
             </div>
           )}
+          {task.estimate && (
+            <div className="mt-1 text-[10px] flex items-center gap-1.5 text-[var(--text-secondary)]">
+              <span>⏱️ {task.estimate}</span>
+            </div>
+          )}
+
+          {age >= 14 && task.status !== 'done' && (
+            <span className="mt-1 text-[10px] flex items-center gap-1.5 text-[var(--text-secondary)]">
+                🕰️ {age}d old
+            </span>
+          )}
 
           {/* Footer */}
           <div className="flex items-center justify-between mt-2">
-            <div className="flex items-center gap-2 text-[#555] text-[10px]">
-              {task.pomodoroCount > 0 && <span>🍅 ×{task.pomodoroCount}</span>}
+            <div className="flex items-center gap-2 text-[var(--text-muted)] text-[10px]">
+              {estimatedPomodoros && (
+                <span
+                  className={
+                    actualPomodoros > estimatedPomodoros
+                      ? "text-red-400"
+                      : "text-green-400"
+                  }
+                >
+                  🍅 {actualPomodoros}/{estimatedPomodoros} sessions
+                </span>
+              )}
               {task.snippets?.length > 0 && (
                 <span>📎 {task.snippets.length}</span>
               )}
@@ -314,42 +453,30 @@ const TaskCard = ({ task, index, onSelect }) => {
             </div>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigator.clipboard.writeText(task.title);
+                  onSelect(task);
                 }}
-                title="Copy title"
-                className="opacity-0 group-hover:opacity-100 text-[#555] hover:text-[#aaa] transition text-xs"
+                aria-label="Edit task"
+                title="Edit task"
+                className="opacity-0 group-hover:opacity-100 text-[10px] px-2 py-1 rounded bg-gray-600 text-white hover:bg-gray-700 transition-opacity"
               >
-                📋
+                ✏️
               </button>
+
               {task.assignee?.name && (
-                <div title={task.assignee.name} className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
+                <div title={task.assignee.name} className={`w-5 h-5 rounded-full ${getAvatarColor(task.assignee.name)} flex items-center justify-center text-[9px] font-bold text-white`}>
                   {task.assignee.name[0].toUpperCase()}
                 </div>
               )}
             </div>
-            <button
-              onClick={(e) => {
-              e.stopPropagation();
-              onSelect(task);
-            }}
-             className="opacity-0 group-hover:opacity-100 text-[10px] px-2 py-1 rounded bg-gray-600 text-white hover:bg-gray-700 transition-opacity"
-             >
-              ✏️
-             </button>
-
-            {task.assignee?.name && (
-              <div title={task.assignee.name} className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[9px] font-bold text-white">
-                {task.assignee.name[0].toUpperCase()}
-              </div>
-            )}
           </div>
 
           {/* Last updated */}
           
           {task.updatedAt && (
-            <div className="mt-1 text-[10px] text-[#666]">
+            <div className="mt-1 text-[10px] text-[var(--text-secondary)]">
               ✏️ updated {timeAgo(task.updatedAt)}
             </div>
           )}
@@ -368,7 +495,7 @@ const TaskCard = ({ task, index, onSelect }) => {
                   closeContextMenu();
                   onSelect(task);
                 }}
-                className="w-full px-3 py-1.5 text-left text-xs text-[#f0f0f0] hover:bg-[var(--border-primary)]"
+                className="w-full px-3 py-1.5 text-left text-xs text-[var(--text-primary)] hover:bg-[var(--border-primary)]"
               >
                 ✏️ Edit
               </button>
@@ -389,7 +516,7 @@ const TaskCard = ({ task, index, onSelect }) => {
                   e.stopPropagation();
                   handleDuplicate();
                 }}
-                className="w-full px-3 py-1.5 text-left text-xs text-[#f0f0f0] hover:bg-[var(--border-primary)]"
+                className="w-full px-3 py-1.5 text-left text-xs text-[var(--text-primary)] hover:bg-[var(--border-primary)]"
               >
                 📄 Duplicate
               </button>

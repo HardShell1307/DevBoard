@@ -3,11 +3,18 @@ const http = require("http");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
+const morgan = require("morgan");
 const dotenv = require("dotenv");
 const { rateLimit } = require("express-rate-limit");
 const { Server } = require("socket.io");
+const {API_VERSION} = require("./config/constants")
 
 dotenv.config();
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -25,16 +32,47 @@ const io = new Server(server, {
 // Make io available to route handlers (req.app.get("io"))
 app.set("io", io);
 
+app.use(morgan("dev"));
 app.use(helmet());
-app.use(cors());
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 app.use(limiter);
 
 // Routes
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/tasks", require("./routes/tasks"));
-app.use("/api/github", require("./routes/github"));
-app.use("/api/ai", require("./routes/ai"));
+app.use(`${API_VERSION}/auth`, require("./routes/auth"));
+app.use(`${API_VERSION}/tasks`, require("./routes/tasks"));
+app.use(`${API_VERSION}/github`, require("./routes/github"));
+app.use(`${API_VERSION}/ai`, require("./routes/ai"));
+
+// Health check — no auth required
+app.get(`${API_VERSION}/health`, (req, res) => {
+  const mem = process.memoryUsage();
+  res.json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    mongodb:
+      mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+    memory: {
+      heapUsed: `${Math.round(mem.heapUsed / 1024 / 1024)}MB`,
+      heapTotal: `${Math.round(mem.heapTotal / 1024 / 1024)}MB`,
+      rss: `${Math.round(mem.rss / 1024 / 1024)}MB`,
+    },
+  });
+});
 
 app.get("/", (req, res) => res.json({ message: "DevBoard API running 🚀" }));
 

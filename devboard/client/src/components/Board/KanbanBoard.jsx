@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import Column from "./Column";
 import TaskModal from "../Task/TaskModal";
@@ -7,8 +7,10 @@ import confetti from "canvas-confetti";
 
 const COLUMNS = ["backlog", "inprogress", "review", "done"];
 
-const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol }) => {
-  const { tasks, updateTask, addTask } = useBoard();
+
+const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol, priorityFilter = "all", focusMode = false }) => {
+
+  const { tasks, updateTask, addTask, loading } = useBoard();
   const displayedTasks = filteredTasks ?? tasks;
   const [modalOpen, setModalOpen] = useState(false);
   const [defaultStatus, setDefaultStatus] = useState("backlog");
@@ -20,6 +22,14 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol }) => {
   const [showinput, setShowinput] = useState(false);
   const [columnName, setColumnName] = useState("");
 
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (showinput) {
+      inputRef.current?.focus();
+    }
+  }, [showinput]);
+
   useEffect(() => {
     const handler = (e) => {
       if (e.key.toLowerCase() === "n" && !e.target.matches("input, textarea")) {
@@ -27,18 +37,52 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol }) => {
         setModalOpen(true);
       }
     };
-
     window.addEventListener("keydown", handler);
-
-    return () => {
-      window.removeEventListener("keydown", handler);
-    };
+    return () => window.removeEventListener("keydown", handler);
   }, []);
 
   const getTasksByStatus = (status) =>
-    displayedTasks.filter((t) => t.status === status).sort((a, b) => a.order - b.order);
 
-  const isEmpty = COLUMNS.every(col => getTasksByStatus(col).length === 0);
+    displayedTasks
+      .filter((t) => t.status === status)
+      .filter((t) => priorityFilter === "all" || t.priority?.toLowerCase() === priorityFilter)
+      .sort((a, b) => a.order - b.order);
+
+
+
+  const visibleColumns = focusMode
+    ? columns.filter((col) => col.toLowerCase() !== "done")
+    : columns;
+
+  const isEmpty = visibleColumns.every(col => getTasksByStatus(col).length === 0);
+  const totalTasks = tasks.length;
+  const playDoneSound = () => {
+    const AudioContextClass =
+      window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioContextClass) return;
+
+    const ctx = new AudioContextClass();
+    const notes = [523, 659, 784];
+
+    notes.forEach((frequency, index) => {
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const startTime = ctx.currentTime + index * 0.1;
+
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+
+      oscillator.frequency.value = frequency;
+      oscillator.type = "sine";
+
+      gain.gain.setValueAtTime(0.3, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.5);
+
+      oscillator.start(startTime);
+      oscillator.stop(startTime + 0.5);
+    });
+  };
 
   const onDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
@@ -58,6 +102,7 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol }) => {
       source.droppableId !== "done"
     ) {
       confetti({ particleCount: 100, spread: 70 });
+       playDoneSound();
     }
 
     const sourceTasks = Array.from(getTasksByStatus(source.droppableId));
@@ -128,17 +173,7 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol }) => {
   };
 
   const handleSubmit = () => {
-
-    if (!columnName.trim()) {
-      console.log("Empty column name!");
-      return;
-    }
-
-    setColumns((prev) => {
-      const updated = [...prev, columnName];
-      return updated;
-    });
-
+    setColumns((prev) => [...prev, columnName]);
     setColumnName("");
     setShowinput(false);
   };
@@ -155,20 +190,38 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol }) => {
   return (
     <>
       {showinput && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-          <div className="flex flex-col bg-white rounded-lg p-6 w-96 shadow-xl">
+        <div
+          className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center"
+          onClick={handleCancel}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') handleCancel();
+            if (e.key === 'Enter' && columnName.trim()) handleSubmit();
+          }}
+        >
+          <div
+            className="flex flex-col bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-lg p-6 w-96 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <input
+              ref={inputRef}
               type="text"
               placeholder="Enter column name"
               value={columnName}
               onChange={(e) => setColumnName(e.target.value)}
-              className="border rounded px-2 py-1 placeholder-gray-300 text-gray-950"
+              className="border border-[var(--border-primary)] rounded px-2 py-1 bg-[var(--bg-input)] text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:border-purple-500 focus:outline-none"
             />
-            <div className="flex justify-between">
-              <button onClick={handleCancel} className="p-4 text-red-600">
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              >
                 Cancel
               </button>
-              <button onClick={handleSubmit} className="p-4 text-green-600">
+              <button
+                onClick={handleSubmit}
+                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                disabled={!columnName.trim()}
+              >
                 Add
               </button>
             </div>
@@ -177,8 +230,26 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol }) => {
       )}
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex flex-col md:flex-row gap-4 p-4 overflow-x-hidden md:overflow-x-auto overflow-y-auto h-full">
-          {isEmpty ? (
+        <div className="board board-bg flex flex-col md:flex-row gap-4 p-4 overflow-x-hidden md:overflow-x-auto overflow-y-auto h-full">
+          {totalTasks === 0 && !loading ? (
+            <div className="flex flex-col items-center justify-center w-full py-24">
+              <div className="text-6xl animate-bounce mb-4">
+                🗂️
+              </div>
+              <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+                Your board is empty!
+              </h2>
+              <p className="text-sm text-[var(--text-muted)] mb-6">
+                Create your first task to get started
+              </p>
+              <button
+                onClick={() => handleAddTask('backlog')}
+                className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium transition"
+              >
+                ✨ Create first task
+              </button>
+            </div>
+          ) : isEmpty ? (
             <div className="flex flex-col items-center justify-center w-full h-64 text-gray-500">
               <span className="text-4xl mb-4">🔍</span>
               <h3 className="text-xl font-semibold mb-2">No tasks found!</h3>
@@ -194,10 +265,11 @@ const KanbanBoard = ({ tasks: filteredTasks, onSelectTask, activeCol }) => {
                   onSelectTask={onSelectTask}
                   onAddTask={handleAddTask}
                   isActive={columns.indexOf(col) === activeCol}
+                  columns={columns}
                 />
               ))}
               <button
-                className="flex"
+                className="flex no-print"
                 onClick={() => {
                   setShowinput(true);
                 }}

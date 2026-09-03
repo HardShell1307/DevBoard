@@ -6,7 +6,9 @@ const { protect } = require("../middleware/auth");
 // GET /api/tasks — get all tasks
 router.get("/", protect, async (req, res) => {
   try {
-    const tasks = await Task.find().populate("assignee", "name email avatar").sort("order");
+    const tasks = await Task.find()
+      .populate("assignee", "name email avatar")
+      .sort("order");
     res.json(tasks);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -38,7 +40,15 @@ router.put("/:id", protect, async (req, res) => {
     const updatedTask = await Task.findByIdAndUpdate(req.params.id, updates, {
       new: true,
     }).populate("assignee", "name email avatar");
-    if (!updatedTask) return res.status(404).json({ message: "Task not found" });
+    if (!updatedTask)
+      return res.status(404).json({ message: "Task not found" });
+
+    if (req.body.status) {
+      updatedTask.activity.push({
+        action: `status changed to ${req.body.status}`,
+      });
+       await updatedTask.save();
+    }
 
     // Broadcast so other open boards update without refresh
     const io = req.app.get("io");
@@ -49,6 +59,8 @@ router.put("/:id", protect, async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
+
+
 
 // DELETE /api/tasks/:id — delete task
 router.delete("/:id", protect, async (req, res) => {
@@ -80,7 +92,7 @@ router.patch("/:id/pomodoro", protect, async (req, res) => {
     const task = await Task.findByIdAndUpdate(
       req.params.id,
       { $inc: { pomodoroCount: 1 } },
-      { new: true }
+      { new: true },
     );
     res.json(task);
   } catch (err) {

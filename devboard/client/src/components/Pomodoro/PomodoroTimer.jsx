@@ -8,7 +8,7 @@ const PomodoroTimer = ({ activeTaskTitle, onSessionComplete }) => {
   return (
     <div className="flex items-center gap-3 bg-[var(--bg-card)] px-4 py-2 border-b border-[var(--border-primary)] text-sm">
       <span className="text-lg">🍅</span>
-      <span className="text-[#888] text-xs truncate max-w-[160px]">
+      <span className="text-[var(--text-secondary)] text-xs truncate max-w-[160px]">
         {activeTaskTitle || "No task selected"}
       </span>
       <span
@@ -26,18 +26,18 @@ const PomodoroTimer = ({ activeTaskTitle, onSessionComplete }) => {
           style={{ width: `${progress}%` }}
         />
       </div>
-      <span className="text-[#555] text-xs whitespace-nowrap">
+      <span className="text-[var(--text-muted)] text-xs whitespace-nowrap">
         {isBreak ? "Break" : `Session ${sessionCount + 1}`}
       </span>
       <button
         onClick={toggle}
-        className="px-3 py-1 rounded bg-[var(--border-primary)] hover:bg-[#333] text-xs font-medium transition"
+        className="px-3 py-1 rounded bg-[var(--border-primary)] hover:bg-[var(--bg-hover)] text-xs font-medium transition"
       >
         {isRunning ? "⏸ Pause" : "▶ Start"}
       </button>
       <button
         onClick={reset}
-        className="px-3 py-1 rounded bg-[var(--border-primary)] hover:bg-[#333] text-xs font-medium transition text-[#888]"
+        className="px-3 py-1 rounded bg-[var(--border-primary)] hover:bg-[var(--bg-hover)] text-xs font-medium transition text-[var(--text-secondary)]"
       >
         ↺
       </button>
